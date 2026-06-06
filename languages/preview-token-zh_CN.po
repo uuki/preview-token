@@ -251,3 +251,9 @@ msgstr "当前 HTTPS 检查已禁用。预览令牌可能通过未加密的 HTTP
 #: src/WordPress/Settings.php
 msgid "If the WPT_SKIP_HTTPS_CHECK constant is defined in wp-config.php, it takes precedence over this setting."
 msgstr "如果在 wp-config.php 中定义了 WPT_SKIP_HTTPS_CHECK 常量，则该常量优先于此设置。"
+
+msgid "Maximum number of preview requests allowed from a single IP address within the rate limit window. Requests that exceed this limit receive a 429 response. Default: 30."
+msgstr "在速率限制时间窗口内，单个 IP 地址允许的最大预览请求数。超过此限制的请求将收到 429 响应。默认值：30。"
+
+msgid "Time window in seconds over which the rate limit is measured. The request counter resets after each window expires. Default: 60."
+msgstr "速率限制的计量时间窗口（秒）。每个窗口到期后，请求计数器将重置。默认值：60。"
