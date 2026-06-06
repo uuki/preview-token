@@ -8,7 +8,7 @@ test.describe('CORS origins UI', () => {
         await page.fill('#user_pass', 'password');
         await page.click('#wp-submit');
         await page.waitForURL(`${WP}/wp-admin/**`);
-        await page.goto(`${WP}/wp-admin/options-general.php?page=wp-preview-token`);
+        await page.goto(`${WP}/wp-admin/options-general.php?page=preview-token`);
     });
 
     test('shows at least one origin input row', async ({ page }) => {

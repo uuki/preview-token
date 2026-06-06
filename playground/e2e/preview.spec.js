@@ -34,12 +34,12 @@ test.describe('Preview page', () => {
 
 test.describe('REST API', () => {
     test('returns 401 for an invalid token', async ({ request }) => {
-        const res = await request.get(`${WP}/wp-json/wp-preview-token/v1/preview?token=invalid`);
+        const res = await request.get(`${WP}/wp-json/preview-token/v1/preview?token=invalid`);
         expect(res.status()).toBe(401);
     });
 
     test('returns 400 when token param is missing', async ({ request }) => {
-        const res = await request.get(`${WP}/wp-json/wp-preview-token/v1/preview`);
+        const res = await request.get(`${WP}/wp-json/preview-token/v1/preview`);
         expect(res.status()).toBe(400);
     });
 });

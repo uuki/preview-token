@@ -1,7 +1,7 @@
 /**
  * Security regression tests — OWASP Top 10 (black-box)
  *
- * Scope: WP core + wp-preview-token plugin combination only.
+ * Scope: WP core + preview-token plugin combination only.
  * Platform/infrastructure issues (TLS, OS, PHP binary) are out of scope.
  *
  * Each test verifies that a specific attack vector is rejected.
@@ -10,7 +10,7 @@
 import { test, expect } from '@playwright/test';
 
 const WP     = 'http://127.0.0.1:9400';
-const API    = `${WP}/wp-json/wp-preview-token/v1`;
+const API    = `${WP}/wp-json/preview-token/v1`;
 const WP_API = `${WP}/wp-json/wp/v2`;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -165,7 +165,7 @@ test.describe('A01 — Broken Access Control', () => {
             await page.fill('#user_pass', 'password');
             await page.click('#wp-submit');
             await page.waitForURL(`${WP}/wp-admin/**`);
-            await page.goto(`${WP}/wp-admin/options-general.php?page=wp-preview-token`);
+            await page.goto(`${WP}/wp-admin/options-general.php?page=preview-token`);
             await page.waitForLoadState('domcontentloaded');
             const body = await page.locator('body').innerText();
             // Must not show the settings form fields to a non-admin
