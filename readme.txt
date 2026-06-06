@@ -8,13 +8,13 @@ Requires PHP: 7.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Issue short-lived preview tokens for headless WordPress setups. Let external frontends render draft content without long-lived credentials.
+Issue time-limited preview tokens for headless WordPress setups. Open draft content directly in your designated frontend URL without long-lived credentials.
 
 == Description ==
 
-**Preview Token** solves the authentication problem in decoupled (headless) WordPress architectures. Instead of sharing Application Passwords or other long-lived secrets with your frontend, the plugin issues short-lived tokens that grant read access to a single draft post for a limited time.
+**Preview Token** solves the authentication problem in decoupled (headless) WordPress architectures. Application Passwords are a great built-in WordPress feature for this purpose, but they require managing long-lived secrets on the frontend side. This plugin instead issues per-post tokens that grant read access for a configurable period — no persistent secrets required.
 
-The frontend (Astro, Next.js, Nuxt, etc.) receives a preview URL containing the token and can fetch the draft content via the REST API — no secrets stored, no persistent credentials required.
+The frontend (Astro, Next.js, Nuxt, etc.) receives a preview URL and can fetch the draft content directly via the REST API.
 
 = How it works =
 
@@ -42,7 +42,7 @@ The frontend (Astro, Next.js, Nuxt, etc.) receives a preview URL containing the 
 
 **Admin Settings**
 
-* Set the external frontend URL.
+* Set the external frontend URL (clicking "Open external preview" navigates directly to this URL).
 * Configure allowed CORS origins (multiple, with wildcard support — `https://*.example.com`).
 * Choose the minimum WordPress role required to issue tokens (Subscriber → Administrator).
 * Tune rate limiting (requests per time window).
@@ -168,26 +168,15 @@ Yes. When the Classic Editor plugin is active, the token panel appears as a meta
 
 == Screenshots ==
 
-1. **Gutenberg sidebar** — Generate and manage preview tokens directly from the block editor.
-2. **Quick Edit panel** — Issue tokens without leaving the post list screen.
-3. **Settings page** — Configure the frontend URL, CORS origins, role requirements, and rate limits.
-4. **Issued Tokens tab** — Review all active tokens, see who issued them, and revoke them individually or in bulk.
+1. **Gutenberg sidebar** — Token generation panel before a token is issued. Select an expiry and click "Generate token".
+2. **Gutenberg sidebar** — Active token: expiry info, open preview in the designated frontend URL, and copy-to-clipboard.
+3. **Classic Editor** — Token panel in the meta box sidebar, before a token is issued.
+4. **Classic Editor** — Active token with "Open external preview" button and change-expiry / delete actions.
+6. **Settings page** — Configure the frontend URL, CORS origins, minimum role, and rate limits.
+7. **Issued Tokens tab** — Review all issued tokens with post, status, expiry, and issuer. Revoke or bulk-delete expired ones.
+8. **Quick Edit panel** — Token management directly from the post list screen, without opening the editor.
 
 == Changelog ==
 
 = 1.0.0 =
 * Initial release.
-* Token issuance, validation, and revocation via REST API.
-* Gutenberg sidebar, Quick Edit, and Classic Editor integrations.
-* Settings page: frontend URL, CORS origins, minimum capability, rate limiting, no-expiry option.
-* Issued Tokens admin tab with individual and bulk revocation.
-* Audit logging for lifecycle and security events.
-* Japanese and Simplified Chinese translations.
-* CORS multi-origin with wildcard support; WP core echo-back override at priority 11.
-* Rate limiting per IP via WP transients.
-* TypeScript source compiled to IIFE bundles via tsdown.
-
-== Upgrade Notice ==
-
-= 1.0.0 =
-Initial release — no upgrade steps required.
