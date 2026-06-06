@@ -23,6 +23,6 @@ docs
 bin
 dist
 database
-readme-ja.txt
+README.md
 languages/*.pot
 *.DS_Store

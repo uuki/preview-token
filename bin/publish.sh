@@ -39,13 +39,16 @@ rsync -a \
     . "${STAGE}/"
 
 echo "▸ Removing non-production files..."
+# WordPress.org requires readme.txt at the plugin root; promote it before docs/ is removed.
+cp "${STAGE}/docs/readme.txt" "${STAGE}/readme.txt"
+
 # Directories
 for d in .github .claude playground tests src/js docs bin database; do
     rm -rf "${STAGE:?}/${d}"
 done
 # Files
 for f in .gitignore .gitattributes .distignore .phpunit.result.cache \
-          CLAUDE.md LICENSE readme-ja.txt package.json pnpm-lock.yaml \
+          CLAUDE.md LICENSE README.md package.json pnpm-lock.yaml \
           tsconfig.json tsdown.config.ts composer.lock \
           phpunit.xml patchwork.json; do
     rm -f "${STAGE:?}/${f}"
