@@ -176,10 +176,13 @@ class IssueEndpoint
 
     private function format(array $data, int $post_id): array
     {
+        $post_type = (string) (get_post_type($post_id) ?: 'post');
+
         return [
             'preview_url' => add_query_arg(
                 [
                     'p'       => $post_id,
+                    'pt'      => $post_type,
                     'preview' => 'true',
                     'token'   => $data['raw'],
                 ],

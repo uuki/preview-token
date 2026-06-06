@@ -59,6 +59,7 @@ class IssueEndpointFormatTest extends TestCase
             return $url . $sep . $query;
         });
         Functions\when('home_url')->justReturn('https://wp.example.com');
+        Functions\when('get_post_type')->justReturn('post');
 
         $endpoint  = new IssueEndpoint($issuer, $settings, $limiter);
         $reflector = new \ReflectionMethod($endpoint, 'format');
@@ -70,6 +71,7 @@ class IssueEndpointFormatTest extends TestCase
         $url = $result['preview_url'];
 
         self::assertStringContainsString('p=42',          $url, 'preview_url must contain p=<post_id>');
+        self::assertStringContainsString('pt=post',       $url, 'preview_url must contain pt=<post_type>');
         self::assertStringContainsString('preview=true',  $url, 'preview_url must contain preview=true');
         self::assertStringContainsString('token=' . $raw_token, $url, 'preview_url must contain token=<raw>');
     }
@@ -102,6 +104,7 @@ class IssueEndpointFormatTest extends TestCase
             return $url . $sep . $query;
         });
         Functions\when('home_url')->justReturn('https://wp.example.com');
+        Functions\when('get_post_type')->justReturn('post');
 
         $endpoint  = new IssueEndpoint($issuer, $settings, $limiter);
         $reflector = new \ReflectionMethod($endpoint, 'format');
@@ -112,13 +115,16 @@ class IssueEndpointFormatTest extends TestCase
 
         $url   = $result['preview_url'];
         $pos_p       = strpos($url, 'p=');
+        $pos_pt      = strpos($url, 'pt=');
         $pos_preview = strpos($url, 'preview=');
         $pos_token   = strpos($url, 'token=');
 
         self::assertNotFalse($pos_p,       'p param must be present');
+        self::assertNotFalse($pos_pt,      'pt param must be present');
         self::assertNotFalse($pos_preview, 'preview param must be present');
         self::assertNotFalse($pos_token,   'token param must be present');
-        self::assertLessThan($pos_preview, $pos_p,       'p must come before preview');
+        self::assertLessThan($pos_pt,      $pos_p,       'p must come before pt');
+        self::assertLessThan($pos_preview, $pos_pt,      'pt must come before preview');
         self::assertLessThan($pos_token,   $pos_preview, 'preview must come before token');
     }
 }
