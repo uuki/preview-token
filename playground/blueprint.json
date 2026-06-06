@@ -9,7 +9,7 @@
   "steps": [
     {
       "step": "activatePlugin",
-      "pluginPath": "plugin-staging/preview-token.php"
+      "pluginPath": "preview-token/preview-token.php"
     },
     {
       "step": "installPlugin",
