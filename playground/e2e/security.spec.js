@@ -92,11 +92,32 @@ test.beforeAll(async ({ browser }) => {
     // Create an Application Password to simulate an external REST client.
     // WP_ENVIRONMENT_TYPE=local (set via playground/package.json) enables
     // Application Passwords even on HTTP.
+    //
+    // First, delete any stale passwords with the same name left by interrupted
+    // test runs. WordPress allows multiple passwords with identical names so
+    // without this cleanup they would accumulate on every run.
+    const APP_PW_NAME = 'pvt-e2e-external-test';
+    const listRes = await adminPage.request.get(
+        `${WP_API}/users/1/application-passwords`,
+        { headers: { 'X-WP-Nonce': adminNonce } }
+    );
+    if (listRes.ok()) {
+        const existing = await listRes.json();
+        for (const pw of Array.isArray(existing) ? existing : []) {
+            if (pw.name === APP_PW_NAME) {
+                await adminPage.request.delete(
+                    `${WP_API}/users/1/application-passwords/${pw.uuid}`,
+                    { headers: { 'X-WP-Nonce': adminNonce } }
+                ).catch(() => null);
+            }
+        }
+    }
+
     const apRes = await adminPage.request.post(
         `${WP_API}/users/1/application-passwords`,
         {
             headers: { 'X-WP-Nonce': adminNonce, 'Content-Type': 'application/json' },
-            data:    { name: 'pvt-e2e-external-test' },
+            data:    { name: APP_PW_NAME },
         }
     );
     if (apRes.ok()) {
