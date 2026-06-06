@@ -3,7 +3,7 @@ Contributors: uuki
 Tags: preview, headless, rest-api, token, draft
 Requires at least: 5.9
 Tested up to: 7.0
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 Requires PHP: 7.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -198,6 +198,9 @@ const post = await res.json()
 8. **クイック編集パネル** — エディターを開かずに投稿一覧画面からトークンを管理します。
 
 == 変更履歴 ==
+
+= 1.0.4 =
+* 「外部からのトークン発行を許可」設定を追加（デフォルト: 無効）。有効にすると、必要なロールを持つ認証済みユーザーが WordPress 管理画面外から REST API 経由でトークンを発行できます。CI/CD パイプラインや自動化スクリプトでの利用を想定しています。
 
 = 1.0.3 =
 * 外部フロントエンドでのプレビュー時、下書きが未保存だと最新のデータを取得できないため、Gutenberg では外部プレビューを開く際に自動保存を行うようにしました。クラシックエディターでは、保存してからプレビューを開くよう促す説明文を追加しました。
