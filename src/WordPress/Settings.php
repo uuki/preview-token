@@ -274,18 +274,24 @@ class Settings
     public function render_rate_limit_requests(): void
     {
         printf(
-            '<input type="number" name="%s" value="%d" min="1" max="1000" class="small-text" /> ' . esc_html__('requests per window', 'preview-token'),
+            '<input type="number" name="%s" value="%d" min="1" max="1000" class="small-text" /> '
+            . esc_html__('requests per window', 'preview-token')
+            . '<p class="description">%s</p>',
             esc_attr(Constants::OPTION_RATE_LIMIT_REQUESTS),
-            absint($this->get_rate_limit_requests())
+            absint($this->get_rate_limit_requests()),
+            esc_html__('Maximum number of preview requests allowed from a single IP address within the rate limit window. Requests that exceed this limit receive a 429 response. Default: 30.', 'preview-token')
         );
     }
 
     public function render_rate_limit_window(): void
     {
         printf(
-            '<input type="number" name="%s" value="%d" min="1" max="3600" class="small-text" /> ' . esc_html__('seconds', 'preview-token'),
+            '<input type="number" name="%s" value="%d" min="1" max="3600" class="small-text" /> '
+            . esc_html__('seconds', 'preview-token')
+            . '<p class="description">%s</p>',
             esc_attr(Constants::OPTION_RATE_LIMIT_WINDOW),
-            absint($this->get_rate_limit_window())
+            absint($this->get_rate_limit_window()),
+            esc_html__('Time window in seconds over which the rate limit is measured. The request counter resets after each window expires. Default: 60.', 'preview-token')
         );
     }
 
