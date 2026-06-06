@@ -173,8 +173,8 @@ class TokenAdmin
         </table>
         <p class="description" style="margin-top:8px">
             <?php
-            /* translators: %d: number of issued tokens */
             printf(
+                /* translators: %d: number of issued tokens */
                 esc_html__('%d token(s) issued in total.', 'preview-token'),
                 count($tokens)
             ); ?>
