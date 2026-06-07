@@ -34,6 +34,8 @@ echo "▸ Copying production files..."
 rsync -a \
     --exclude='node_modules/' \
     --exclude='src/assets/js/' \
+    --exclude='.phpunit.result.cache' \
+    --exclude='composer.lock' \
     plugin/ "${STAGE}/"
 
 echo "▸ Removing non-production files..."

@@ -3,6 +3,7 @@
 # Plugin files live under plugin/; items listed here are relative to plugin/.
 
 node_modules
+composer.lock
 pnpm-lock.yaml
 package.json
 tsconfig.json
