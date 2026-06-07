@@ -264,6 +264,36 @@ msgstr "期限切れトークンは使用時に即座に拒否されます。た
 msgid "Save your draft before opening the external preview to ensure the latest content is reflected."
 msgstr "最新のコンテンツを反映するために、外部プレビューを開く前に下書きを保存してください。"
 
+msgid "Preview is only available for unpublished posts."
+msgstr "未公開の投稿のみプレビュー可能です。"
+
+msgid "Too many requests."
+msgstr "リクエストが多すぎます。"
+
+msgid "Token issuance from external clients is not enabled. Enable \"Allow External Token Issuance\" in Settings → Preview Token."
+msgstr "外部クライアントからのトークン発行は有効になっていません。設定 → Preview Token で「外部からのトークン発行を許可」を有効にしてください。"
+
+msgid "Token issuance from external clients is not enabled."
+msgstr "外部クライアントからのトークン発行は有効になっていません。"
+
+msgid "No active token for this post."
+msgstr "この投稿にアクティブなトークンがありません。"
+
+msgid "Insufficient permissions."
+msgstr "権限が不足しています。"
+
+msgid "Post not found."
+msgstr "投稿が見つかりません。"
+
+msgid "No-expiry tokens are not enabled on this site."
+msgstr "このサイトでは有効期限なしのトークンが許可されていません。"
+
+msgid "HTTPS is required."
+msgstr "HTTPS が必要です。"
+
+msgid "Invalid or expired preview token."
+msgstr "無効または期限切れのプレビュートークンです。"
+
 msgid "Allow External Token Issuance"
 msgstr "外部からのトークン発行を許可"
 

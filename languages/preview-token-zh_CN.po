@@ -264,6 +264,36 @@ msgstr "已过期的令牌在使用时会被立即拒绝。但是，数据库记
 msgid "Save your draft before opening the external preview to ensure the latest content is reflected."
 msgstr "请在打开外部预览前保存草稿，以确保显示最新内容。"
 
+msgid "Preview is only available for unpublished posts."
+msgstr "预览仅适用于未发布的文章。"
+
+msgid "Too many requests."
+msgstr "请求过多。"
+
+msgid "Token issuance from external clients is not enabled. Enable \"Allow External Token Issuance\" in Settings → Preview Token."
+msgstr "未启用从外部客户端发行令牌。请在「设置 → Preview Token」中启用「允许从外部发行令牌」。"
+
+msgid "Token issuance from external clients is not enabled."
+msgstr "未启用从外部客户端发行令牌。"
+
+msgid "No active token for this post."
+msgstr "此文章没有有效的令牌。"
+
+msgid "Insufficient permissions."
+msgstr "权限不足。"
+
+msgid "Post not found."
+msgstr "文章未找到。"
+
+msgid "No-expiry tokens are not enabled on this site."
+msgstr "此站点未启用无过期时间的令牌。"
+
+msgid "HTTPS is required."
+msgstr "需要 HTTPS。"
+
+msgid "Invalid or expired preview token."
+msgstr "无效或已过期的预览令牌。"
+
 msgid "Allow External Token Issuance"
 msgstr "允许从外部发行令牌"
 

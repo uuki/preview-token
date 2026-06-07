@@ -66,7 +66,7 @@ class RestEndpoint
         if (!is_ssl() && !$skip_https) {
             return new WP_Error(
                 'https_required',
-                'HTTPS is required.',
+                __('HTTPS is required.', 'preview-token'),
                 ['status' => 403]
             );
         }
@@ -77,7 +77,7 @@ class RestEndpoint
             do_action('pvt_rate_limit_exceeded', $ip, 'preview');
             return new WP_Error(
                 'rate_limit_exceeded',
-                'Too many requests.',
+                __('Too many requests.', 'preview-token'),
                 ['status' => 429]
             );
         }
@@ -89,7 +89,7 @@ class RestEndpoint
             do_action('pvt_invalid_token', $ip);
             return new WP_Error(
                 'invalid_token',
-                'Invalid or expired preview token.',
+                __('Invalid or expired preview token.', 'preview-token'),
                 ['status' => 401]
             );
         }
@@ -99,7 +99,7 @@ class RestEndpoint
         if (!($post instanceof WP_Post)) {
             return new WP_Error(
                 'post_not_found',
-                'Post not found.',
+                __('Post not found.', 'preview-token'),
                 ['status' => 404]
             );
         }
@@ -108,7 +108,7 @@ class RestEndpoint
         if (!in_array($post->post_status, Constants::PREVIEWABLE_STATUSES, true)) {
             return new WP_Error(
                 'invalid_post_status',
-                'Preview is only available for unpublished posts.',
+                __('Preview is only available for unpublished posts.', 'preview-token'),
                 ['status' => 403]
             );
         }

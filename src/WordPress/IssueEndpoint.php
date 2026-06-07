@@ -79,13 +79,13 @@ class IssueEndpoint
         $ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? ''));
         if (!$this->rate_limiter->is_allowed($ip)) {
             do_action('pvt_rate_limit_exceeded', $ip, 'token');
-            return new WP_Error('rate_limit_exceeded', 'Too many requests.', ['status' => 429]);
+            return new WP_Error('rate_limit_exceeded', __('Too many requests.', 'preview-token'), ['status' => 429]);
         }
 
         if (!$this->settings->get_allow_external_issuance() && !$this->is_admin_ui_request($request)) {
             return new WP_Error(
                 'external_issuance_disabled',
-                'Token issuance from external clients is not enabled. Enable "Allow External Token Issuance" in Settings → Preview Token.',
+                __('Token issuance from external clients is not enabled. Enable "Allow External Token Issuance" in Settings → Preview Token.', 'preview-token'),
                 ['status' => 403]
             );
         }
@@ -112,7 +112,7 @@ class IssueEndpoint
     public function handle_patch(WP_REST_Request $request)
     {
         if (!$this->settings->get_allow_external_issuance() && !$this->is_admin_ui_request($request)) {
-            return new WP_Error('external_issuance_disabled', 'Token issuance from external clients is not enabled.', ['status' => 403]);
+            return new WP_Error('external_issuance_disabled', __('Token issuance from external clients is not enabled.', 'preview-token'), ['status' => 403]);
         }
 
         $post_id    = (int) $request->get_param('post_id');
@@ -126,7 +126,7 @@ class IssueEndpoint
         if ($resolved instanceof WP_Error) return $resolved;
 
         if (!$this->issuer->update_expiry($post_id, $resolved)) {
-            return new WP_Error('no_token', 'No active token for this post.', ['status' => 404]);
+            return new WP_Error('no_token', __('No active token for this post.', 'preview-token'), ['status' => 404]);
         }
 
         return new WP_REST_Response($this->format($this->issuer->get_by_post($post_id), $post_id), 200);
@@ -136,7 +136,7 @@ class IssueEndpoint
     public function handle_delete(WP_REST_Request $request)
     {
         if (!$this->settings->get_allow_external_issuance() && !$this->is_admin_ui_request($request)) {
-            return new WP_Error('external_issuance_disabled', 'Token issuance from external clients is not enabled.', ['status' => 403]);
+            return new WP_Error('external_issuance_disabled', __('Token issuance from external clients is not enabled.', 'preview-token'), ['status' => 403]);
         }
 
         $post_id = (int) $request->get_param('post_id');
@@ -173,7 +173,7 @@ class IssueEndpoint
     {
         if (!user_can($user_id, $this->settings->get_min_capability(), $post_id)) {
             do_action('pvt_capability_denied', $user_id, $post_id);
-            return new WP_Error('forbidden', 'Insufficient permissions.', ['status' => 403]);
+            return new WP_Error('forbidden', __('Insufficient permissions.', 'preview-token'), ['status' => 403]);
         }
         return null;
     }
@@ -183,10 +183,10 @@ class IssueEndpoint
     {
         $post = get_post($post_id);
         if (!($post instanceof WP_Post)) {
-            return new WP_Error('post_not_found', 'Post not found.', ['status' => 404]);
+            return new WP_Error('post_not_found', __('Post not found.', 'preview-token'), ['status' => 404]);
         }
         if (!in_array($post->post_status, Constants::PREVIEWABLE_STATUSES, true)) {
-            return new WP_Error('invalid_post_status', 'Preview is only available for unpublished posts.', ['status' => 403]);
+            return new WP_Error('invalid_post_status', __('Preview is only available for unpublished posts.', 'preview-token'), ['status' => 403]);
         }
         return null;
     }
@@ -201,7 +201,7 @@ class IssueEndpoint
         if ($expires_at !== 0) return $expires_at;
 
         if (!$this->settings->get_allow_no_expiry()) {
-            return new WP_Error('no_expiry_disabled', 'No-expiry tokens are not enabled on this site.', ['status' => 403]);
+            return new WP_Error('no_expiry_disabled', __('No-expiry tokens are not enabled on this site.', 'preview-token'), ['status' => 403]);
         }
 
         return time() + self::NO_EXPIRY_SECONDS;
@@ -215,7 +215,7 @@ class IssueEndpoint
             'preview_url' => add_query_arg(
                 [
                     'p'       => $post_id,
-                    'pt'      => $post_type,
+                    'pt'      => $this->resolve_pt($post_id, $post_type),
                     'preview' => 'true',
                     'token'   => $data['raw'],
                 ],
@@ -225,5 +225,22 @@ class IssueEndpoint
             'issued_at'   => $data['issued_at'],
             'issued_by'   => $data['issued_by'],
         ];
+    }
+
+    private function resolve_pt(int $post_id, string $post_type): string
+    {
+        if ($post_type !== 'page' || get_option('show_on_front') !== 'page') {
+            return $post_type;
+        }
+
+        if ((int) get_option('page_on_front') === $post_id) {
+            return 'front_page';
+        }
+
+        if ((int) get_option('page_for_posts') === $post_id) {
+            return 'posts_page';
+        }
+
+        return $post_type;
     }
 }

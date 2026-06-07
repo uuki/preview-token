@@ -4,6 +4,10 @@
  * Minimal WP_REST_Request stub for PHPUnit tests running under Brain Monkey.
  * Loaded via phpunit.xml <file> directive or require_once in bootstrap.php.
  */
+if (!function_exists('__')) {
+    function __($text, $domain = 'default') { return $text; }
+}
+
 if (!class_exists('WP_Error')) {
     class WP_Error
     {
