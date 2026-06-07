@@ -36,6 +36,10 @@ class RestNamespaceConsistencyTest extends TestCase
         // Match the namespace as a URL segment; trailing slash is optional
         // (e.g. both "/wp-json/preview-token/v1/" and "/wp-json/preview-token/v1`" match)
         $expected  = "/wp-json/{$namespace}";
+        // plugin/ の外にある playground/ を意図的に参照している。
+        // このテストはプラグイン定数とdev環境のURLが乖離しないことを保証する
+        // 整合性テストであり、境界をまたぐことが目的。
+        // (plugin/tests/Unit/ → plugin/tests/ → plugin/ → repo root)
         $root      = dirname(__DIR__, 3);
         $failures  = [];
 
