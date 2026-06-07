@@ -1,5 +1,7 @@
 # Preview Token
 
+<img src="assets/banner-1544x500.png" width="100%" alt="Preview Token">
+
 A WordPress plugin that issues time-limited preview tokens for headless setups. External frontends (Astro, Next.js, Nuxt, SvelteKit, etc.) can fetch draft content via the REST API without storing long-lived credentials.
 
 ## How it works
