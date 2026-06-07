@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "prepare": "husky",
+    "publish:zip": "bash bin/publish.sh",
     "release": "semantic-release"
   },
   "devDependencies": {
