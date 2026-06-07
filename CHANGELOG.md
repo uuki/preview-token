@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/uuki/preview-token/compare/v1.1.0...v1.1.1) (2026-06-07)
+
+
+### Bug Fixes
+
+* address plugin-check warnings ([e4b4981](https://github.com/uuki/preview-token/commit/e4b4981d4e69b047f5c874e0de5c7f4d1596fdb6))
+
 # [1.1.0](https://github.com/uuki/preview-token/compare/v1.0.4...v1.1.0) (2026-06-07)
 
 
