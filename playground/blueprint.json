@@ -8,6 +8,13 @@
   },
   "steps": [
     {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "wordpress.org/plugins",
+        "slug": "plugin-check"
+      }
+    },
+    {
       "step": "activatePlugin",
       "pluginPath": "plugin/preview-token.php"
     },
