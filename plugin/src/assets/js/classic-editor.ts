@@ -6,10 +6,10 @@
 
 import { PvtTokenPanel } from './token-panel'
 import { NativeBtn, NativeSelect } from './native-components'
-import { ELEMENT_CLASSIC_ROOT } from './constants'
+import { ELEMENT_CLASSIC_ROOT, LOG_PREFIX } from './constants'
 
 if (typeof pvtPreviewData === 'undefined') {
-  throw new Error('[PVT] pvtPreviewData is not defined')
+  throw new Error(`${LOG_PREFIX} pvtPreviewData is not defined`)
 }
 
 const { createElement: el } = wp.element

@@ -17,6 +17,7 @@
 	const ELEMENT_CLASSIC_ROOT = "pvt-classic-meta-box-root";
 	const ATTR_PANEL = "data-pvt-panel";
 	const ATTR_ACTION = "data-pvt-action";
+	const LOG_PREFIX = "[PVT]";
 	//#endregion
 	//#region src/assets/js/utils.ts
 	/**
@@ -380,7 +381,7 @@
 	* Mounts PvtTokenPanel into the container injected by Settings::render_classic_meta_box().
 	* WordPress deps: wp-element
 	*/
-	if (typeof pvtPreviewData === "undefined") throw new Error("[PVT] pvtPreviewData is not defined");
+	if (typeof pvtPreviewData === "undefined") throw new Error(`${LOG_PREFIX} pvtPreviewData is not defined`);
 	const { createElement: el } = wp.element;
 	const initClassicMetaBox = () => {
 		const root = document.getElementById(ELEMENT_CLASSIC_ROOT);

@@ -5,12 +5,12 @@
  */
 
 import { PvtTokenPanel } from './token-panel'
-import { PLUGIN_ID_SIDEBAR } from './constants'
+import { PLUGIN_ID_SIDEBAR, LOG_PREFIX } from './constants'
 
 if (typeof pvtPreviewData === 'undefined') {
   // pvtPreviewData is injected by wp_localize_script; if missing, skip silently
   // (avoids breaking Gutenberg if the plugin's enqueue hook didn't fire)
-  console.warn('[PVT] pvtPreviewData is not defined')
+  console.warn(`${LOG_PREFIX} pvtPreviewData is not defined`)
 }
 
 const { createElement: el }      = wp.element

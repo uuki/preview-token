@@ -17,6 +17,7 @@
 	const ATTR_PANEL = "data-pvt-panel";
 	const ATTR_ACTION = "data-pvt-action";
 	const PLUGIN_ID_SIDEBAR = "pvt-preview";
+	const LOG_PREFIX = "[PVT]";
 	//#endregion
 	//#region src/assets/js/utils.ts
 	/**
@@ -333,7 +334,7 @@
 	* Registers a PluginDocumentSettingPanel with PvtTokenPanel.
 	* WordPress deps: wp-element, wp-components, wp-plugins, wp-data, wp-editor, wp-edit-post
 	*/
-	if (typeof pvtPreviewData === "undefined") console.warn("[PVT] pvtPreviewData is not defined");
+	if (typeof pvtPreviewData === "undefined") console.warn(`${LOG_PREFIX} pvtPreviewData is not defined`);
 	const { createElement: el } = wp.element;
 	const { Button, SelectControl } = wp.components;
 	const { registerPlugin } = wp.plugins;

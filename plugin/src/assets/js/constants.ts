@@ -37,3 +37,7 @@ export const ATTR_ACTION = 'data-pvt-action'
 // ── Gutenberg plugin ID ───────────────────────────────────────────────────────
 
 export const PLUGIN_ID_SIDEBAR = 'pvt-preview'
+
+// ── Log prefix ────────────────────────────────────────────────────────────────
+
+export const LOG_PREFIX = '[PVT]'

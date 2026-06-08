@@ -17,6 +17,7 @@
 	const CLASS_QUICK_EDIT_ROOT = "pvt-quick-edit-root";
 	const ATTR_PANEL = "data-pvt-panel";
 	const ATTR_ACTION = "data-pvt-action";
+	const LOG_PREFIX = "[PVT]";
 	//#endregion
 	//#region src/assets/js/utils.ts
 	/**
@@ -380,7 +381,7 @@
 	* Mounts PvtTokenPanel inside the #edit-{postId} rows via MutationObserver.
 	* WordPress deps: wp-element, inline-edit-post
 	*/
-	if (typeof pvtPreviewData === "undefined") throw new Error("[PVT] pvtPreviewData is not defined");
+	if (typeof pvtPreviewData === "undefined") throw new Error(`${LOG_PREFIX} pvtPreviewData is not defined`);
 	const { createElement: el } = wp.element;
 	const renderToContainer = (container, postId) => {
 		const panel = el(PvtTokenPanel, {
