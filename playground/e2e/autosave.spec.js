@@ -54,12 +54,12 @@ test.describe('Gutenberg auto-save before external preview', () => {
         // ── Ensure there is an active token ──────────────────────────────────
         // Generate if needed so the "Open external preview" button is shown.
         const panelState = await page.evaluate(() =>
-            document.querySelector('[data-pvt-panel]')?.getAttribute('data-pvt-panel') ?? 'none'
+            document.querySelector('[data-drpt-panel]')?.getAttribute('data-drpt-panel') ?? 'none'
         ).catch(() => 'none');
 
         if (panelState !== 'active') {
             await page.evaluate(() => {
-                const btn = document.querySelector('[data-pvt-action="generate"] button');
+                const btn = document.querySelector('[data-drpt-action="generate"] button');
                 if (btn) btn.click();
             });
             // Wait for token generation (network round-trip)
@@ -93,7 +93,7 @@ test.describe('Gutenberg auto-save before external preview', () => {
         // ── Click "Open external preview" (triggers savePost + window.open) ──
         const popupPromise = context.waitForEvent('page', { timeout: 30_000 });
         await page.evaluate(() => {
-            const btn = document.querySelector('[data-pvt-action="preview"] button');
+            const btn = document.querySelector('[data-drpt-action="preview"] button');
             if (btn) btn.click();
         });
 

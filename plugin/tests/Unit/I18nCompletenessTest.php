@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PVT\Tests\Unit;
+namespace DRPT\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 
@@ -14,15 +14,15 @@ use PHPUnit\Framework\TestCase;
  */
 class I18nCompletenessTest extends TestCase
 {
-    private const TEXT_DOMAIN = 'preview-token';
+    private const TEXT_DOMAIN = 'draft-preview-token';
 
     private const SOURCE_DIRS = [
         __DIR__ . '/../../src',
     ];
 
     private const PO_FILES = [
-        'ja'    => __DIR__ . '/../../languages/preview-token-ja.po',
-        'zh_CN' => __DIR__ . '/../../languages/preview-token-zh_CN.po',
+        'ja'    => __DIR__ . '/../../languages/draft-preview-token-ja.po',
+        'zh_CN' => __DIR__ . '/../../languages/draft-preview-token-zh_CN.po',
     ];
 
     // ── Tests ─────────────────────────────────────────────────────────────────

@@ -1,10 +1,10 @@
-# Japanese translation for WP Preview Token
-# Copyright (C) 2026 WP Preview Token
+# Japanese translation for Draft Preview Token
+# Copyright (C) 2026 Draft Preview Token
 # This file is distributed under the MIT license.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Preview Token 1.0.0\n"
-"Report-Msgid-Bugs-To: https://github.com/uuki/preview-token/issues\n"
+"Project-Id-Version: Draft Preview Token 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/uuki/draft-preview-token/issues\n"
 "POT-Creation-Date: 2026-06-06T00:00:00+00:00\n"
 "PO-Revision-Date: 2026-06-06T00:00:00+00:00\n"
 "Last-Translator: \n"
@@ -15,11 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-msgid "WP Preview Token"
-msgstr "WP プレビュートークン"
-
-msgid "Preview Token"
-msgstr "Preview Token"
+msgid "Draft Preview Token"
+msgstr "Draft Preview Token"
 
 msgid "External Preview URL"
 msgstr "外部プレビュー URL"
@@ -249,8 +246,8 @@ msgid "The HTTPS check is currently disabled. Preview tokens can be sent over un
 msgstr "現在 HTTPS チェックが無効になっています。プレビュートークンが暗号化されていない HTTP 通信で送信される可能性があります。本番環境では絶対に使用しないでください。"
 
 #: src/WordPress/Settings.php
-msgid "If the PVT_SKIP_HTTPS_CHECK constant is defined in wp-config.php, it takes precedence over this setting."
-msgstr "wp-config.php で PVT_SKIP_HTTPS_CHECK 定数を定義している場合は、この設定よりも優先されます。"
+msgid "If the %s constant is defined in wp-config.php, it takes precedence over this setting."
+msgstr "wp-config.php で %s 定数を定義している場合は、この設定よりも優先されます。"
 
 msgid "Maximum number of preview requests allowed from a single IP address within the rate limit window. Requests that exceed this limit receive a 429 response. Default: 30."
 msgstr "レート制限ウィンドウ内に1つの IP アドレスから許可されるプレビューリクエストの最大数。この上限を超えたリクエストは 429 レスポンスを受け取ります。デフォルト: 30。"
@@ -270,8 +267,8 @@ msgstr "未公開の投稿のみプレビュー可能です。"
 msgid "Too many requests."
 msgstr "リクエストが多すぎます。"
 
-msgid "Token issuance from external clients is not enabled. Enable \"Allow External Token Issuance\" in Settings → Preview Token."
-msgstr "外部クライアントからのトークン発行は有効になっていません。設定 → Preview Token で「外部からのトークン発行を許可」を有効にしてください。"
+msgid "Token issuance from external clients is not enabled. Enable \"Allow External Token Issuance\" in Settings → Draft Preview Token."
+msgstr "外部クライアントからのトークン発行は有効になっていません。設定 → Draft Preview Token で「外部からのトークン発行を許可」を有効にしてください。"
 
 msgid "Token issuance from external clients is not enabled."
 msgstr "外部クライアントからのトークン発行は有効になっていません。"

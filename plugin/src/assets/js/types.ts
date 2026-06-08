@@ -1,4 +1,5 @@
-import type { ComponentType, CSSProperties, ReactNode } from '@wordpress/element'
+import type { ComponentType } from '@wordpress/element'
+import type { CSSProperties, ReactNode } from 'react'
 import type { ATTR_ACTION } from './constants'
 
 export interface TokenData {
@@ -23,7 +24,7 @@ export interface SelectOption {
 }
 
 // ── Injected component interfaces ────────────────────────────────────────────
-// Minimal props required by PvtTokenPanel; both wp.components.Button and
+// Minimal props required by DrptTokenPanel; both wp.components.Button and
 // NativeBtn must satisfy BtnProps, and both SelectControl/NativeSelect must
 // satisfy SelectInputProps.
 

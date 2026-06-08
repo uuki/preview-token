@@ -52,7 +52,7 @@ Download the latest zip from [Releases](https://github.com/uuki/preview-token/re
 │   │   └── Support/            # Response pipeline and filters
 │   ├── tests/                  # PHPUnit unit tests
 │   ├── vendor/                 # Composer dependencies (gitignored)
-│   ├── preview-token.php       # Plugin entry point and header
+│   ├── draft-preview-token.php       # Plugin entry point and header
 │   ├── readme.txt              # WP.org plugin page (en) — part of trunk
 │   ├── composer.json
 │   ├── package.json            # JS build deps: tsdown, @wordpress/*

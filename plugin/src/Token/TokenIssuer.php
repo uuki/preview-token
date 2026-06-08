@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace PVT\Token;
+namespace DRPT\Token;
 
 class TokenIssuer
 {
-    public const OPTIONS_PREFIX  = 'pvt_tk_';
-    public const META_HASH       = '_pvt_token_hash';
-    public const META_RAW        = '_pvt_token_raw';
-    public const META_EXPIRES_AT = '_pvt_expires_at';
-    public const META_ISSUED_BY  = '_pvt_issued_by';
-    public const META_ISSUED_AT  = '_pvt_issued_at';
-    public const HOOK_TOKEN_ISSUED = 'pvt_token_issued';
+    public const OPTIONS_PREFIX  = 'drpt_tk_';
+    public const META_HASH       = '_drpt_token_hash';
+    public const META_RAW        = '_drpt_token_raw';
+    public const META_EXPIRES_AT = '_drpt_expires_at';
+    public const META_ISSUED_BY  = '_drpt_issued_by';
+    public const META_ISSUED_AT  = '_drpt_issued_at';
+    public const HOOK_TOKEN_ISSUED = 'drpt_token_issued';
 
     /**
      * Issue a new token, overwriting any existing one for the post.

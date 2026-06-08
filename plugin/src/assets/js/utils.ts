@@ -14,7 +14,7 @@ export const fmt = (template: string, ...args: (string | number)[]): string => {
   return args.reduce<string>((s, a) => s.replace('%s', String(a)), result)
 }
 
-const i18n = (): PvtI18n | undefined => pvtPreviewData?.i18n
+const i18n = (): DrptI18n | undefined => drptPreviewData?.i18n
 
 export const getPresetOptions = (allowNoExpiry: boolean): SelectOption[] => {
   const t = i18n()
@@ -48,7 +48,7 @@ export const computeExpiresAt = (preset: string, customIso: string): number => {
   const now = Math.floor(Date.now() / 1000)
   if (preset === 'noexpiry') return 0
   if (preset === 'custom')   return Math.floor(new Date(customIso).getTime() / 1000)
-  return now + (PRESET_SECONDS[preset] ?? 3_600)
+  return now + (PRESET_SECONDS[preset as keyof typeof PRESET_SECONDS] ?? 3_600)
 }
 
 export const formatExpiry = (expiresAt: number): ExpiryInfo => {
@@ -80,11 +80,11 @@ export const apiFetch = async <T = unknown>(
   body?: JsonBody | null,
   queryParams?: Record<string, string>,
 ): Promise<T | null> => {
-  if (typeof pvtPreviewData === 'undefined') {
-    throw new Error(`${LOG_PREFIX} pvtPreviewData is not defined`)
+  if (typeof drptPreviewData === 'undefined') {
+    throw new Error(`${LOG_PREFIX} drptPreviewData is not defined`)
   }
 
-  const { tokenBase, nonce } = pvtPreviewData
+  const { tokenBase, nonce } = drptPreviewData
   const url = queryParams
     ? `${tokenBase}?${new URLSearchParams(queryParams).toString()}`
     : tokenBase

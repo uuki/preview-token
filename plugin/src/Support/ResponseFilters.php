@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PVT\Support;
+namespace DRPT\Support;
 
 class ResponseFilters
 {

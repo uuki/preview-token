@@ -1,32 +1,32 @@
 /**
  * Quick Edit entry.
- * Mounts PvtTokenPanel inside the #edit-{postId} rows via MutationObserver.
+ * Mounts DrptTokenPanel inside the #edit-{postId} rows via MutationObserver.
  * WordPress deps: wp-element, inline-edit-post
  */
 
-import { PvtTokenPanel } from './token-panel'
+import { DrptTokenPanel } from './token-panel'
 import { NativeBtn, NativeSelect } from './native-components'
 import { CLASS_QUICK_EDIT_ROOT, LOG_PREFIX } from './constants'
 
-if (typeof pvtPreviewData === 'undefined') {
-  throw new Error(`${LOG_PREFIX} pvtPreviewData is not defined`)
+if (typeof drptPreviewData === 'undefined') {
+  throw new Error(`${LOG_PREFIX} drptPreviewData is not defined`)
 }
 
 const { createElement: el } = wp.element
 
 // ── renderToContainer ─────────────────────────────────────────────────────────
 
-interface PvtContainer extends HTMLElement {
-  _pvtRoot?: { render: (node: unknown) => void; unmount: () => void }
+interface DrptContainer extends HTMLElement {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  _drptRoot?: { render: (children: any) => void; unmount: () => void }
 }
 
-const renderToContainer = (container: PvtContainer, postId: number): void => {
-  const panel = el(PvtTokenPanel, { postId, Btn: NativeBtn, SelectInput: NativeSelect })
+const renderToContainer = (container: DrptContainer, postId: number): void => {
+  const panel = el(DrptTokenPanel, { postId, Btn: NativeBtn, SelectInput: NativeSelect })
   if (wp.element.createRoot) {
-    if (!container._pvtRoot) container._pvtRoot = wp.element.createRoot(container)
-    container._pvtRoot.render(panel)
+    if (!container._drptRoot) container._drptRoot = wp.element.createRoot(container)
+    container._drptRoot!.render(panel)
   } else {
-    // @ts-expect-error — legacy React 17 render API
     wp.element.render(panel, container)
   }
 }
@@ -41,9 +41,9 @@ const mountPanel = (row: HTMLElement, postId: number): void => {
   const col = getQuickEditCol(row)
   if (!col || !postId) return
 
-  let container = col.querySelector<PvtContainer>(`.${CLASS_QUICK_EDIT_ROOT}`)
+  let container = col.querySelector<DrptContainer>(`.${CLASS_QUICK_EDIT_ROOT}`)
   if (!container) {
-    container = document.createElement('div') as PvtContainer
+    container = document.createElement('div') as DrptContainer
     container.className = CLASS_QUICK_EDIT_ROOT
     container.style.cssText = 'border-top:1px solid #ddd;margin-top:8px;padding-top:8px'
     col.appendChild(container)
@@ -52,10 +52,10 @@ const mountPanel = (row: HTMLElement, postId: number): void => {
 }
 
 const unmountRow = (row: HTMLElement): void => {
-  const container = row.querySelector<PvtContainer>(`.${CLASS_QUICK_EDIT_ROOT}`)
+  const container = row.querySelector<DrptContainer>(`.${CLASS_QUICK_EDIT_ROOT}`)
   if (!container) return
-  container._pvtRoot?.unmount()
-  container._pvtRoot = undefined
+  container._drptRoot?.unmount()
+  container._drptRoot = undefined
   container.remove()
 }
 
@@ -69,12 +69,12 @@ const observeQuickEdit = (): void => {
 
   new MutationObserver(mutations => {
     for (const mutation of mutations) {
-      for (const node of mutation.addedNodes) {
+      for (const node of Array.from(mutation.addedNodes)) {
         if (!(node instanceof HTMLElement)) continue
         const match = /^edit-(\d+)$/.exec(node.id ?? '')
         if (match) mountPanel(node, parseInt(match[1]!, 10))
       }
-      for (const node of mutation.removedNodes) {
+      for (const node of Array.from(mutation.removedNodes)) {
         if (!(node instanceof HTMLElement)) continue
         if (/^edit-\d+$/.test(node.id ?? '')) unmountRow(node)
       }

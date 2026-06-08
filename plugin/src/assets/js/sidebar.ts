@@ -1,16 +1,17 @@
 /**
  * Gutenberg sidebar entry.
- * Registers a PluginDocumentSettingPanel with PvtTokenPanel.
+ * Registers a PluginDocumentSettingPanel with DrptTokenPanel.
  * WordPress deps: wp-element, wp-components, wp-plugins, wp-data, wp-editor, wp-edit-post
  */
 
-import { PvtTokenPanel } from './token-panel'
+import { DrptTokenPanel } from './token-panel'
 import { PLUGIN_ID_SIDEBAR, LOG_PREFIX } from './constants'
+import type { BtnComponent } from './types'
 
-if (typeof pvtPreviewData === 'undefined') {
-  // pvtPreviewData is injected by wp_localize_script; if missing, skip silently
+if (typeof drptPreviewData === 'undefined') {
+  // drptPreviewData is injected by wp_localize_script; if missing, skip silently
   // (avoids breaking Gutenberg if the plugin's enqueue hook didn't fire)
-  console.warn(`${LOG_PREFIX} pvtPreviewData is not defined`)
+  console.warn(`${LOG_PREFIX} drptPreviewData is not defined`)
 }
 
 const { createElement: el }      = wp.element
@@ -27,27 +28,29 @@ if (!PluginDocumentSettingPanel) {
 } else {
   registerPlugin(PLUGIN_ID_SIDEBAR, {
     render() {
-      const postId = useSelect(
-        (select: ReturnType<typeof wp.data.select>) =>
+      const postId = (useSelect as Function)(
+        (select: (store: string) => Record<string, Function>) =>
           (select('core/editor') as { getCurrentPostId: () => number | null }).getCurrentPostId(),
         [],
-      )
+      ) as number | null
 
       if (!postId) return null
 
       // Save unsaved Gutenberg changes before opening the external preview,
       // so the token endpoint returns the latest edited content.
       const onBeforeOpenPreview = async (): Promise<void> => {
-        const editor   = wp.data.select('core/editor') as { isEditedPostDirty: () => boolean }
-        const dispatch = wp.data.dispatch('core/editor') as { savePost: () => Promise<void> }
+        const editor   = (wp.data.select as Function)('core/editor') as { isEditedPostDirty: () => boolean }
+        const dispatch = wp.data.dispatch('core/editor') as unknown as { savePost: () => Promise<void> }
         if (editor.isEditedPostDirty()) await dispatch.savePost()
       }
 
-      return el(
+      const panel = el(DrptTokenPanel, { postId, Btn: Button as unknown as BtnComponent, SelectInput: SelectControl, onBeforeOpenPreview })
+      // PluginDocumentSettingPanel props (name, initialOpen) extend beyond @wordpress/editor types
+      return (el as Function)(
         PluginDocumentSettingPanel,
         { name: PLUGIN_ID_SIDEBAR, title: 'External Preview', icon: 'site', initialOpen: true },
-        el(PvtTokenPanel, { postId, Btn: Button, SelectInput: SelectControl, onBeforeOpenPreview }),
-      )
+        panel,
+      ) as ReturnType<typeof el>
     },
   })
 }

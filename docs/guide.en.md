@@ -21,7 +21,7 @@ An authorized WordPress user generates a token from the Gutenberg sidebar, Quick
 
 ```
 Editor generates token in Gutenberg sidebar / Quick Edit / Classic Editor
-  └─ plugin issues token → SHA-256 hash stored in wp_options (pvt_tk_{hash})
+  └─ plugin issues token → SHA-256 hash stored in wp_options (drpt_tk_{hash})
   └─ preview URL built: https://front.example.com/preview?token=<64-char-hex>
 
 User opens the preview URL in browser
@@ -42,7 +42,7 @@ Frontend renders preview
 | Property   | Value                                                              |
 |------------|--------------------------------------------------------------------|
 | Generation | `bin2hex(random_bytes(32))` — 256-bit CSPRNG, 64-char hex          |
-| Storage    | `wp_options` key = `pvt_tk_` + `sha256(token)` (O(1) lookup)      |
+| Storage    | `wp_options` key = `drpt_tk_` + `sha256(token)` (O(1) lookup)      |
 | Expiry     | Configurable: 1 h / 24 h / 30 d / custom datetime / no-expiry     |
 | Reuse      | Allowed within validity window                                     |
 | On expiry  | `401 Unauthorized` (same as invalid)                               |
@@ -84,24 +84,24 @@ The preview response body matches the standard WordPress REST API post format (`
 | `ping_status` | Not relevant to preview |
 | `template`    | Not relevant to preview |
 
-Use the `pvt_preview_response_data` filter to add, remove, or transform fields in the response.
+Use the `drpt_preview_response_data` filter to add, remove, or transform fields in the response.
 
 ```php
 // Remove additional fields
-add_filter('pvt_preview_response_data', function (array $data, WP_Post $post, WP_REST_Request $req): array {
+add_filter('drpt_preview_response_data', function (array $data, WP_Post $post, WP_REST_Request $req): array {
     unset($data['author']);
     return $data;
 }, 10, 3);
 
 // Add ACF fields (ACF fields registered with "Show in REST API" are included automatically;
 // use this only when you need fields that are not exposed to unauthenticated requests)
-add_filter('pvt_preview_response_data', function (array $data, WP_Post $post): array {
+add_filter('drpt_preview_response_data', function (array $data, WP_Post $post): array {
     $data['acf'] = function_exists('get_fields') ? get_fields($post->ID) : [];
     return $data;
 }, 10, 2);
 
 // Add content.raw (raw block markup — only expose when the token recipient is trusted)
-add_filter('pvt_preview_response_data', function (array $data, WP_Post $post): array {
+add_filter('drpt_preview_response_data', function (array $data, WP_Post $post): array {
     $data['content']['raw'] = $post->post_content;
     return $data;
 }, 10, 2);

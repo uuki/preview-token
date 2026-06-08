@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Plugin Name: Preview Token
+ * Plugin Name: Draft Preview Token
  * Plugin URI:  https://github.com/uuki/wp-preview-token
  * Description: Issues short-lived preview tokens for Headless WordPress preview authentication.
  * Version:     1.1.1
  * Requires PHP: 7.4
  * License:     GPL-2.0-or-later
- * Text Domain: preview-token
+ * Text Domain: draft-preview-token
  * Domain Path: /languages
  */
 
@@ -17,8 +17,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('PVT_PLUGIN_FILE', __FILE__);
+define('DRPT_PLUGIN_FILE', __FILE__);
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-PVT\WordPress\Plugin::get_instance()->init();
+DRPT\WordPress\Plugin::get_instance()->init();

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PVT\WordPress;
+namespace DRPT\WordPress;
 
 class RateLimiter
 {

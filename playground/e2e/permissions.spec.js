@@ -172,7 +172,7 @@ test.describe('Token creation permissions by WordPress role', () => {
             test.setTimeout(45_000);
             const { page, ctx } = await loginAndGetNonce(browser, 'admin');
             await page.goto(`${WP}/wp-admin/options-general.php?page=preview-token`);
-            await page.selectOption('select[name="pvt_min_capability"]', 'administrator');
+            await page.selectOption('select[name="drpt_min_capability"]', 'administrator');
             await page.getByRole('button', { name: /save changes/i }).click();
             await page.waitForURL(`${WP}/wp-admin/options-general.php*`);
             await ctx.close();
@@ -182,7 +182,7 @@ test.describe('Token creation permissions by WordPress role', () => {
             test.setTimeout(45_000);
             const { page, ctx } = await loginAndGetNonce(browser, 'admin');
             await page.goto(`${WP}/wp-admin/options-general.php?page=preview-token`);
-            await page.selectOption('select[name="pvt_min_capability"]', 'contributor');
+            await page.selectOption('select[name="drpt_min_capability"]', 'contributor');
             await page.getByRole('button', { name: /save changes/i }).click();
             await page.waitForURL(`${WP}/wp-admin/options-general.php*`);
             await ctx.close();

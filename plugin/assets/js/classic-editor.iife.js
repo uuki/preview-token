@@ -14,10 +14,10 @@
 		"24h": 86400,
 		"30d": 30 * 86400
 	};
-	const ELEMENT_CLASSIC_ROOT = "pvt-classic-meta-box-root";
-	const ATTR_PANEL = "data-pvt-panel";
-	const ATTR_ACTION = "data-pvt-action";
-	const LOG_PREFIX = "[PVT]";
+	const ELEMENT_CLASSIC_ROOT = "drpt-classic-meta-box-root";
+	const ATTR_PANEL = "data-drpt-panel";
+	const ATTR_ACTION = "data-drpt-action";
+	const LOG_PREFIX = "[DRPT]";
 	//#endregion
 	//#region src/assets/js/utils.ts
 	/**
@@ -28,7 +28,7 @@
 		let result = template.replace(/%(\d+)\$s/g, (_, i) => String(args[parseInt(i, 10) - 1] ?? ""));
 		return args.reduce((s, a) => s.replace("%s", String(a)), result);
 	};
-	const i18n = () => pvtPreviewData?.i18n;
+	const i18n = () => drptPreviewData?.i18n;
 	const getPresetOptions = (allowNoExpiry) => {
 		const t = i18n();
 		return [
@@ -107,8 +107,8 @@
 		};
 	};
 	const apiFetch = async (method, body, queryParams) => {
-		if (typeof pvtPreviewData === "undefined") throw new Error(`${LOG_PREFIX} pvtPreviewData is not defined`);
-		const { tokenBase, nonce } = pvtPreviewData;
+		if (typeof drptPreviewData === "undefined") throw new Error(`${LOG_PREFIX} drptPreviewData is not defined`);
+		const { tokenBase, nonce } = drptPreviewData;
 		const url = queryParams ? `${tokenBase}?${new URLSearchParams(queryParams).toString()}` : tokenBase;
 		const headers = { "X-WP-Nonce": nonce };
 		let bodyStr;
@@ -145,7 +145,7 @@
 		color: "#ddd",
 		margin: "0 4px"
 	};
-	const t = () => pvtPreviewData?.i18n ?? {
+	const t = () => drptPreviewData?.i18n ?? {
 		preset1h: "1 hour",
 		preset24h: "24 hours",
 		preset30d: "30 days",
@@ -179,8 +179,8 @@
 			...style
 		}
 	}, label);
-	const PvtTokenPanel = ({ postId, Btn, SelectInput, onBeforeOpenPreview }) => {
-		const PRESET_OPTIONS = getPresetOptions(pvtPreviewData?.allowNoExpiry ?? false);
+	const DrptTokenPanel = ({ postId, Btn, SelectInput, onBeforeOpenPreview }) => {
+		const PRESET_OPTIONS = getPresetOptions(drptPreviewData?.allowNoExpiry ?? false);
 		const [token, setToken] = useState(null);
 		const [loaded, setLoaded] = useState(false);
 		const [preset, setPreset] = useState("1h");
@@ -193,7 +193,7 @@
 			setLoaded(false);
 			setToken(null);
 			setMode("view");
-			fetch(`${pvtPreviewData?.tokenBase ?? ""}?post_id=${postId}`, { headers: { "X-WP-Nonce": pvtPreviewData?.nonce ?? "" } }).then((r) => r.ok ? r.json() : null).then((d) => {
+			fetch(`${drptPreviewData?.tokenBase ?? ""}?post_id=${postId}`, { headers: { "X-WP-Nonce": drptPreviewData?.nonce ?? "" } }).then((r) => r.ok ? r.json() : null).then((d) => {
 				setToken(d);
 				setLoaded(true);
 			}).catch(() => setLoaded(true));
@@ -288,7 +288,9 @@
 				style: { flex: "1" }
 			}, el$2(Btn, {
 				variant: "secondary",
-				onClick: doOpenPreview,
+				href: onBeforeOpenPreview ? void 0 : token?.preview_url ?? void 0,
+				target: "_blank",
+				onClick: onBeforeOpenPreview ? doOpenPreview : void 0,
 				isBusy: busy,
 				style: {
 					width: "100%",
@@ -378,24 +380,24 @@
 	//#region src/assets/js/classic-editor.ts
 	/**
 	* Classic Editor meta box entry.
-	* Mounts PvtTokenPanel into the container injected by Settings::render_classic_meta_box().
+	* Mounts DrptTokenPanel into the container injected by Settings::render_classic_meta_box().
 	* WordPress deps: wp-element
 	*/
-	if (typeof pvtPreviewData === "undefined") throw new Error(`${LOG_PREFIX} pvtPreviewData is not defined`);
+	if (typeof drptPreviewData === "undefined") throw new Error(`${LOG_PREFIX} drptPreviewData is not defined`);
 	const { createElement: el } = wp.element;
 	const initClassicMetaBox = () => {
 		const root = document.getElementById(ELEMENT_CLASSIC_ROOT);
 		if (!root) return;
 		const postId = parseInt(root.dataset["postId"] ?? "0", 10);
 		if (!postId) return;
-		const panel = el(PvtTokenPanel, {
+		const panel = el(DrptTokenPanel, {
 			postId,
 			Btn: NativeBtn,
 			SelectInput: NativeSelect
 		});
 		if (wp.element.createRoot) {
-			if (!root._pvtRoot) root._pvtRoot = wp.element.createRoot(root);
-			root._pvtRoot.render(panel);
+			if (!root._drptRoot) root._drptRoot = wp.element.createRoot(root);
+			root._drptRoot.render(panel);
 		} else wp.element.render(panel, root);
 	};
 	if (document.readyState !== "loading") initClassicMetaBox();

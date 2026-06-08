@@ -18,26 +18,26 @@ export const PRESET_SECONDS = {
 
 // ── Element IDs ─── sync: Constants::ELEMENT_* ───────────────────────────────
 
-export const ELEMENT_CLASSIC_ROOT     = 'pvt-classic-meta-box-root'
-export const ELEMENT_ORIGINS_LIST     = 'pvt-origins-list'
-export const ELEMENT_ADD_ORIGIN       = 'pvt-add-origin'
-export const ELEMENT_WILDCARD_WARNING = 'pvt-wildcard-warning'
+export const ELEMENT_CLASSIC_ROOT     = 'drpt-classic-meta-box-root'
+export const ELEMENT_ORIGINS_LIST     = 'drpt-origins-list'
+export const ELEMENT_ADD_ORIGIN       = 'drpt-add-origin'
+export const ELEMENT_WILDCARD_WARNING = 'drpt-wildcard-warning'
 
 // ── CSS classes ───────────────────────────────────────────────────────────────
 
-export const CLASS_QUICK_EDIT_ROOT = 'pvt-quick-edit-root'
-export const CLASS_ORIGIN_ROW      = 'pvt-origin-row'
-export const CLASS_REMOVE_ORIGIN   = 'pvt-remove-origin'
+export const CLASS_QUICK_EDIT_ROOT = 'drpt-quick-edit-root'
+export const CLASS_ORIGIN_ROW      = 'drpt-origin-row'
+export const CLASS_REMOVE_ORIGIN   = 'drpt-remove-origin'
 
 // ── data attributes ─── sync: Constants::ATTR_* ───────────────────────────────
 
-export const ATTR_PANEL  = 'data-pvt-panel'
-export const ATTR_ACTION = 'data-pvt-action'
+export const ATTR_PANEL  = 'data-drpt-panel'
+export const ATTR_ACTION = 'data-drpt-action'
 
 // ── Gutenberg plugin ID ───────────────────────────────────────────────────────
 
-export const PLUGIN_ID_SIDEBAR = 'pvt-preview'
+export const PLUGIN_ID_SIDEBAR = 'drpt-preview'
 
 // ── Log prefix ────────────────────────────────────────────────────────────────
 
-export const LOG_PREFIX = '[PVT]'
+export const LOG_PREFIX = '[DRPT]'

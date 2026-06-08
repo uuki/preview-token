@@ -2,18 +2,21 @@
 
 declare(strict_types=1);
 
-namespace PVT\WordPress;
+namespace DRPT\WordPress;
 
-use PVT\Support\ResponseFilters;
-use PVT\Support\ResponsePipeline;
-use PVT\Token\TokenIssuer;
-use PVT\Token\TokenValidator;
+use DRPT\Support\ResponseFilters;
+use DRPT\Support\ResponsePipeline;
+use DRPT\Token\TokenIssuer;
+use DRPT\Token\TokenValidator;
 
 class Plugin
 {
     private static ?self $instance = null;
 
-    private Settings $settings;
+    private Settings      $settings;
+    private AdminScripts  $admin_scripts;
+    private AuditLogger   $audit_logger;
+    private TokenAdmin    $token_admin;
 
     private function __construct(Settings $settings)
     {
@@ -42,9 +45,15 @@ class Plugin
         $issue    = new IssueEndpoint($issuer, $this->settings, $rate_limiter);
 
         $this->settings->register();
-        (new AdminScripts($this->settings, plugin_dir_url(constant(Constants::DEFINE_PLUGIN_FILE))))->register();
-        (new AuditLogger())->register();
-        (new TokenAdmin($issuer))->register();
+
+        $this->admin_scripts = new AdminScripts($this->settings, plugin_dir_url(constant(Constants::DEFINE_PLUGIN_FILE)));
+        $this->admin_scripts->register();
+
+        $this->audit_logger = new AuditLogger();
+        $this->audit_logger->register();
+
+        $this->token_admin = new TokenAdmin($issuer);
+        $this->token_admin->register();
 
         add_action('rest_api_init', [$endpoint, 'register']);
         add_action('rest_api_init', [$issue,    'register']);

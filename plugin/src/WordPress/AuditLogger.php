@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace PVT\WordPress;
+namespace DRPT\WordPress;
 
-use PVT\Token\TokenIssuer;
+use DRPT\Token\TokenIssuer;
 
 /**
  * Writes audit entries for token lifecycle events.
@@ -13,7 +13,7 @@ use PVT\Token\TokenIssuer;
  * Each line is prefixed with LOG_PREFIX to distinguish plugin entries from other PHP errors.
  *
  * Custom output: define the constant named by Constants::DEFINE_LOG_FILE in wp-config.php.
- *   define(Constants::DEFINE_LOG_FILE, '/var/log/pvt.log');
+ *   define(Constants::DEFINE_LOG_FILE, '/var/log/drpt.log');
  *
  * Logged events:
  *   - token issued / used                  (lifecycle)

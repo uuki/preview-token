@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace PVT\WordPress;
+namespace DRPT\WordPress;
 
-use PVT\Support\ResponsePipeline;
-use PVT\Token\TokenValidator;
+use DRPT\Support\ResponsePipeline;
+use DRPT\Token\TokenValidator;
 use WP_Error;
 use WP_HTTP_Response;
 use WP_Post;
@@ -60,14 +60,14 @@ class RestEndpoint
     {
         // M-3: HTTPS required.
         // Override options (precedence: wp-config constant > DB option):
-        //   define('PVT_SKIP_HTTPS_CHECK', true)         — server-level override
-        //   Settings > Skip HTTPS Check (checkbox)       — admin UI toggle
-        $skip_https = (defined('PVT_SKIP_HTTPS_CHECK') && PVT_SKIP_HTTPS_CHECK)
+        //   define(Constants::DEFINE_SKIP_HTTPS_CHECK, true)  — server-level override
+        //   Settings > Skip HTTPS Check (checkbox)            — admin UI toggle
+        $skip_https = (defined(Constants::DEFINE_SKIP_HTTPS_CHECK) && constant(Constants::DEFINE_SKIP_HTTPS_CHECK))
                    || $this->settings->get_skip_https_check();
         if (!is_ssl() && !$skip_https) {
             return new WP_Error(
                 'https_required',
-                __('HTTPS is required.', 'preview-token'),
+                __('HTTPS is required.', 'draft-preview-token'),
                 ['status' => 403]
             );
         }
@@ -78,7 +78,7 @@ class RestEndpoint
             do_action(Constants::HOOK_RATE_LIMIT_EXCEEDED, $ip, 'preview');
             return new WP_Error(
                 'rate_limit_exceeded',
-                __('Too many requests.', 'preview-token'),
+                __('Too many requests.', 'draft-preview-token'),
                 ['status' => 429]
             );
         }
@@ -90,7 +90,7 @@ class RestEndpoint
             do_action(Constants::HOOK_INVALID_TOKEN, $ip);
             return new WP_Error(
                 'invalid_token',
-                __('Invalid or expired preview token.', 'preview-token'),
+                __('Invalid or expired preview token.', 'draft-preview-token'),
                 ['status' => 401]
             );
         }
@@ -100,7 +100,7 @@ class RestEndpoint
         if (!($post instanceof WP_Post)) {
             return new WP_Error(
                 'post_not_found',
-                __('Post not found.', 'preview-token'),
+                __('Post not found.', 'draft-preview-token'),
                 ['status' => 404]
             );
         }
@@ -109,7 +109,7 @@ class RestEndpoint
         if (!in_array($post->post_status, Constants::PREVIEWABLE_STATUSES, true)) {
             return new WP_Error(
                 'invalid_post_status',
-                __('Preview is only available for unpublished posts.', 'preview-token'),
+                __('Preview is only available for unpublished posts.', 'draft-preview-token'),
                 ['status' => 403]
             );
         }
@@ -122,7 +122,7 @@ class RestEndpoint
         $filtered   = $this->pipeline->process($prepared->get_data());
 
         // I-2: Allow application-layer response shaping
-        // add_filter('pvt_preview_response_data', function(array $data, WP_Post $post, WP_REST_Request $req): array { ... }, 10, 3);
+        // add_filter(Constants::FILTER_PREVIEW_RESPONSE_DATA, function(array $data, WP_Post $post, WP_REST_Request $req): array { ... }, 10, 3);
         $filtered = apply_filters(Constants::FILTER_PREVIEW_RESPONSE_DATA, $filtered, $post, $request);
 
         return new WP_REST_Response($filtered, 200);

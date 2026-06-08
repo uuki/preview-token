@@ -1,4 +1,4 @@
-=== Preview Token ===
+=== Draft Preview Token ===
 Contributors: uukidev
 Tags: preview, headless, rest-api, token, draft
 Requires at least: 5.9
@@ -12,7 +12,7 @@ Issue time-limited preview tokens for headless WordPress setups. Open drafts dir
 
 == Description ==
 
-**Preview Token** solves the authentication problem in decoupled (headless) WordPress architectures. Application Passwords are a great built-in WordPress feature for this purpose, but they require managing long-lived secrets on the frontend side. This plugin instead issues per-post tokens that grant read access for a configurable period — no persistent secrets required.
+**Draft Preview Token** solves the authentication problem in decoupled (headless) WordPress architectures. Application Passwords are a great built-in WordPress feature for this purpose, but they require managing long-lived secrets on the frontend side. This plugin instead issues per-post tokens that grant read access for a configurable period — no persistent secrets required.
 
 The frontend (Astro, Next.js, Nuxt, etc.) receives a preview URL and can fetch the draft content directly via the REST API.
 
@@ -79,15 +79,15 @@ The frontend (Astro, Next.js, Nuxt, etc.) receives a preview URL and can fetch t
 
 **Filter**
 
-* `pvt_preview_response_data` — Modify the REST API response data before it is sent.
+* `drpt_preview_response_data` — Modify the REST API response data before it is sent.
 
 **Actions**
 
-* `pvt_token_issued( int $post_id, int $user_id )` — Fires after a token is issued.
-* `pvt_token_used( int $post_id, int $user_id )` — Fires when a token is used successfully.
-* `pvt_invalid_token( string $ip )` — Fires on an invalid/expired token attempt.
-* `pvt_rate_limit_exceeded( string $ip, string $endpoint )` — Fires when rate limit is hit.
-* `pvt_capability_denied( int $user_id, int $post_id )` — Fires on a capability denial.
+* `drpt_token_issued( int $post_id, int $user_id )` — Fires after a token is issued.
+* `drpt_token_used( int $post_id, int $user_id )` — Fires when a token is used successfully.
+* `drpt_invalid_token( string $ip )` — Fires on an invalid/expired token attempt.
+* `drpt_rate_limit_exceeded( string $ip, string $endpoint )` — Fires when rate limit is hit.
+* `drpt_capability_denied( int $user_id, int $post_id )` — Fires on a capability denial.
 
 **Constants (wp-config.php)**
 
@@ -102,7 +102,7 @@ This plugin is designed for **headless WordPress** setups where a decoupled fron
 
 1. Upload the `preview-token` folder to `/wp-content/plugins/`.
 2. Activate the plugin through the **Plugins** menu in WordPress.
-3. Go to **Settings → Preview Token** and set your **External Preview URL** (the base URL of your frontend).
+3. Go to **Settings → Draft Preview Token** and set your **External Preview URL** (the base URL of your frontend).
 4. Add the allowed CORS origin(s) for your frontend domain.
 5. Generate tokens from the Gutenberg sidebar, Quick Edit panel, or Classic Editor meta box.
 
@@ -152,7 +152,7 @@ By default, yes. The preview endpoint returns a 403 for HTTP requests to protect
 
 = How do I restrict who can generate tokens? =
 
-In **Settings → Preview Token → Minimum Capability**, choose the minimum WordPress role (Subscriber, Contributor, Author, Editor, or Administrator). Users below that role will receive a 403 when attempting to generate tokens.
+In **Settings → Draft Preview Token → Minimum Capability**, choose the minimum WordPress role (Subscriber, Contributor, Author, Editor, or Administrator). Users below that role will receive a 403 when attempting to generate tokens.
 
 = Can I use wildcard origins in CORS settings? =
 

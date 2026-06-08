@@ -6,6 +6,7 @@
     "build:watch": "tsdown --watch"
   },
   "devDependencies": {
+    "@types/react": "^18.3.0",
     "@wordpress/components": "^29.0.0",
     "@wordpress/data": "^10.0.0",
     "@wordpress/editor": "^14.0.0",
