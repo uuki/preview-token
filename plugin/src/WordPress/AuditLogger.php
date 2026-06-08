@@ -2,16 +2,18 @@
 
 declare(strict_types=1);
 
-namespace PVT\WordPress;
+namespace DRPT\WordPress;
+
+use DRPT\Token\TokenIssuer;
 
 /**
  * Writes audit entries for token lifecycle events.
  *
  * Default output: PHP's system error log (same destination as WP_DEBUG_LOG).
- * Each line is prefixed with [pvt] to distinguish PVT entries from other PHP errors.
+ * Each line is prefixed with LOG_PREFIX to distinguish plugin entries from other PHP errors.
  *
- * Custom output: define PVT_LOG_FILE in wp-config.php to write to a dedicated file.
- *   define('PVT_LOG_FILE', '/var/log/pvt.log');
+ * Custom output: define the constant named by Constants::DEFINE_LOG_FILE in wp-config.php.
+ *   define(Constants::DEFINE_LOG_FILE, '/var/log/drpt.log');
  *
  * Logged events:
  *   - token issued / used                  (lifecycle)
@@ -23,12 +25,12 @@ class AuditLogger
     public function register(): void
     {
         // Token lifecycle
-        add_action('pvt_token_issued',      [$this, 'on_token_issued'],      10, 2);
-        add_action('pvt_token_used',        [$this, 'on_token_used'],        10, 2);
+        add_action(TokenIssuer::HOOK_TOKEN_ISSUED,      [$this, 'on_token_issued'],        10, 2);
+        add_action(Constants::HOOK_TOKEN_USED,          [$this, 'on_token_used'],          10, 2);
         // Security events
-        add_action('pvt_invalid_token',     [$this, 'on_invalid_token'],     10, 1);
-        add_action('pvt_rate_limit_exceeded', [$this, 'on_rate_limit_exceeded'], 10, 2);
-        add_action('pvt_capability_denied', [$this, 'on_capability_denied'], 10, 2);
+        add_action(Constants::HOOK_INVALID_TOKEN,       [$this, 'on_invalid_token'],       10, 1);
+        add_action(Constants::HOOK_RATE_LIMIT_EXCEEDED, [$this, 'on_rate_limit_exceeded'], 10, 2);
+        add_action(Constants::HOOK_CAPABILITY_DENIED,   [$this, 'on_capability_denied'],   10, 2);
     }
 
     public function on_token_issued(int $post_id, int $user_id): void
@@ -61,7 +63,7 @@ class AuditLogger
     private function write(string $event, int $post_id, int $user_id): void
     {
         $message = sprintf(
-            '[pvt] event=%s post_id=%d user_id=%d ip=%s',
+            Constants::LOG_PREFIX . ' event=%s post_id=%d user_id=%d ip=%s',
             $event,
             $post_id,
             $user_id,
@@ -72,14 +74,15 @@ class AuditLogger
 
     private function write_security(string $event, string $context): void
     {
-        $this->output(sprintf('[pvt] event=%s %s', $event, $context));
+        $this->output(sprintf(Constants::LOG_PREFIX . ' event=%s %s', $event, $context));
     }
 
     private function output(string $message): void
     {
-        if (defined('PVT_LOG_FILE') && is_string(PVT_LOG_FILE) && PVT_LOG_FILE !== '') {
+        $log_file = defined(Constants::DEFINE_LOG_FILE) ? constant(Constants::DEFINE_LOG_FILE) : null;
+        if (is_string($log_file) && $log_file !== '') {
             $line = sprintf("[%s] %s\n", gmdate('Y-m-d\TH:i:s\Z'), $message);
-            $this->write_to_file(PVT_LOG_FILE, $line);
+            $this->write_to_file($log_file, $line);
         } else {
             error_log($message); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- intentional audit logger
         }

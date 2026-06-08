@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace PVT\Tests\Unit;
+namespace DRPT\Tests\Unit;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
-use PVT\Token\TokenIssuer;
-use PVT\Token\TokenValidator;
+use DRPT\Token\TokenIssuer;
+use DRPT\Token\TokenValidator;
 
 class TokenValidatorTest extends TestCase
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PVT\WordPress;
+namespace DRPT\WordPress;
 
 class AdminScripts
 {
@@ -27,13 +27,13 @@ class AdminScripts
     public function enqueue_block_editor(): void
     {
         wp_enqueue_script(
-            'pvt-sidebar',
+            Constants::SCRIPT_SIDEBAR,
             $this->asset_url('sidebar'),
             ['wp-edit-post', 'wp-element', 'wp-components', 'wp-plugins', 'wp-data', 'wp-editor'],
             $this->asset_version('sidebar'),
             true
         );
-        wp_localize_script('pvt-sidebar', 'pvtPreviewData', $this->preview_data());
+        wp_localize_script(Constants::SCRIPT_SIDEBAR, Constants::JS_PREVIEW_DATA, $this->preview_data());
     }
 
     // ── Post list (Quick Edit) ───────────────────────────────────────────
@@ -42,13 +42,13 @@ class AdminScripts
     {
         if ($hook === 'edit.php') {
             wp_enqueue_script(
-                'pvt-quick-edit',
+                Constants::SCRIPT_QUICK_EDIT,
                 $this->asset_url('quick-edit'),
                 ['wp-element', 'inline-edit-post'],
                 $this->asset_version('quick-edit'),
                 true
             );
-            wp_localize_script('pvt-quick-edit', 'pvtPreviewData', $this->preview_data());
+            wp_localize_script(Constants::SCRIPT_QUICK_EDIT, Constants::JS_PREVIEW_DATA, $this->preview_data());
 
         } elseif (in_array($hook, ['post.php', 'post-new.php'], true)) {
             $screen = get_current_screen();
@@ -57,13 +57,13 @@ class AdminScripts
             }
 
             wp_enqueue_script(
-                'pvt-classic-editor',
+                Constants::SCRIPT_CLASSIC_EDITOR,
                 $this->asset_url('classic-editor'),
                 ['wp-element'],
                 $this->asset_version('classic-editor'),
                 true
             );
-            wp_localize_script('pvt-classic-editor', 'pvtPreviewData', $this->preview_data());
+            wp_localize_script(Constants::SCRIPT_CLASSIC_EDITOR, Constants::JS_PREVIEW_DATA, $this->preview_data());
         }
     }
 
@@ -77,8 +77,8 @@ class AdminScripts
         }
 
         add_meta_box(
-            'pvt-preview',
-            __('External Preview', 'preview-token'),
+            Constants::META_BOX_ID,
+            __('External Preview', 'draft-preview-token'),
             [$this, 'render_classic_meta_box'],
             null,
             'side',
@@ -89,10 +89,10 @@ class AdminScripts
     public function render_classic_meta_box(\WP_Post $post): void
     {
         printf(
-            '<div id="pvt-classic-meta-box-root" data-post-id="%d"></div>'
+            '<div id="' . esc_attr(Constants::ELEMENT_CLASSIC_ROOT) . '" data-post-id="%d"></div>'
             . '<p class="description" style="margin-top:6px;font-size:11px">%s</p>',
             esc_attr($post->ID),
-            esc_html__('Save your draft before opening the external preview to ensure the latest content is reflected.', 'preview-token')
+            esc_html__('Save your draft before opening the external preview to ensure the latest content is reflected.', 'draft-preview-token')
         );
     }
 
@@ -106,31 +106,31 @@ class AdminScripts
             'allowNoExpiry' => $this->settings->get_allow_no_expiry(),
             'i18n'          => [
                 // Preset labels
-                'preset1h'        => __('1 hour',    'preview-token'),
-                'preset24h'       => __('24 hours',  'preview-token'),
-                'preset30d'       => __('30 days',   'preview-token'),
-                'presetCustom'    => __('Custom',    'preview-token'),
-                'presetNoExpiry'  => __('No expiry', 'preview-token'),
+                'preset1h'        => __('1 hour',    'draft-preview-token'),
+                'preset24h'       => __('24 hours',  'draft-preview-token'),
+                'preset30d'       => __('30 days',   'draft-preview-token'),
+                'presetCustom'    => __('Custom',    'draft-preview-token'),
+                'presetNoExpiry'  => __('No expiry', 'draft-preview-token'),
                 // Panel UI
-                'loading'         => __('Loading…',                  'preview-token'),
-                'expiry'          => __('Expiry',                    'preview-token'),
-                'update'          => __('Update',                    'preview-token'),
-                'cancel'          => __('Cancel',                    'preview-token'),
-                'openPreview'     => __('Open external preview',     'preview-token'),
-                'copyPreviewUrl'  => __('Copy external preview URL', 'preview-token'),
-                'changeExpiry'    => __('Change expiry',             'preview-token'),
-                'deleteToken'     => __('Delete',                    'preview-token'),
-                'deleteConfirm'   => __('Delete this token?',        'preview-token'),
-                'yes'             => __('Yes',                       'preview-token'),
-                'generateToken'   => __('Generate token',            'preview-token'),
-                'regenerateToken' => __('Regenerate token',          'preview-token'),
+                'loading'         => __('Loading…',                  'draft-preview-token'),
+                'expiry'          => __('Expiry',                    'draft-preview-token'),
+                'update'          => __('Update',                    'draft-preview-token'),
+                'cancel'          => __('Cancel',                    'draft-preview-token'),
+                'openPreview'     => __('Open external preview',     'draft-preview-token'),
+                'copyPreviewUrl'  => __('Copy external preview URL', 'draft-preview-token'),
+                'changeExpiry'    => __('Change expiry',             'draft-preview-token'),
+                'deleteToken'     => __('Delete',                    'draft-preview-token'),
+                'deleteConfirm'   => __('Delete this token?',        'draft-preview-token'),
+                'yes'             => __('Yes',                       'draft-preview-token'),
+                'generateToken'   => __('Generate token',            'draft-preview-token'),
+                'regenerateToken' => __('Regenerate token',          'draft-preview-token'),
                 // Status — %s is a placeholder substituted in JS
                 /* translators: %s: token expiry date */
-                'tokenExpired'    => __('Token expired: %s',          'preview-token'),
+                'tokenExpired'    => __('Token expired: %s',          'draft-preview-token'),
                 /* translators: 1: expiry date, 2: relative time remaining */
-                'expiresRelative' => __('Expires: %1$s (%2$s remaining)', 'preview-token'),
-                'lessThan1min'    => __('< 1 min',                    'preview-token'),
-                'errorOccurred'   => __('An error occurred',          'preview-token'),
+                'expiresRelative' => __('Expires: %1$s (%2$s remaining)', 'draft-preview-token'),
+                'lessThan1min'    => __('< 1 min',                    'draft-preview-token'),
+                'errorOccurred'   => __('An error occurred',          'draft-preview-token'),
             ],
         ];
     }

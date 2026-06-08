@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace PVT\Tests\Unit;
+namespace DRPT\Tests\Unit;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
-use PVT\WordPress\RateLimiter;
+use DRPT\WordPress\RateLimiter;
 
 class RateLimiterTest extends TestCase
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PVT\WordPress;
+namespace DRPT\WordPress;
 
 class Settings
 {
@@ -19,11 +19,11 @@ class Settings
     private static function role_options(): array
     {
         return [
-            'subscriber'    => __('Subscriber',    'preview-token'),
-            'contributor'   => __('Contributor',   'preview-token'),
-            'author'        => __('Author',        'preview-token'),
-            'editor'        => __('Editor',        'preview-token'),
-            'administrator' => __('Administrator', 'preview-token'),
+            'subscriber'    => __('Subscriber',    'draft-preview-token'),
+            'contributor'   => __('Contributor',   'draft-preview-token'),
+            'author'        => __('Author',        'draft-preview-token'),
+            'editor'        => __('Editor',        'draft-preview-token'),
+            'administrator' => __('Administrator', 'draft-preview-token'),
         ];
     }
 
@@ -56,66 +56,66 @@ class Settings
 
     public function enqueue_settings_scripts(string $hook): void
     {
-        if ($hook !== 'settings_page_preview-token') {
+        if ($hook !== 'settings_page_' . Constants::SETTINGS_PAGE_SLUG) {
             return;
         }
 
-        $plugin_url  = rtrim(plugin_dir_url(PVT_PLUGIN_FILE), '/');
+        $plugin_url  = rtrim(plugin_dir_url(constant(Constants::DEFINE_PLUGIN_FILE)), '/');
         $asset_path  = dirname(dirname(__DIR__)) . '/assets/js/settings.iife.js';
         $version     = file_exists($asset_path) ? (string) filemtime($asset_path) : '0';
 
         wp_enqueue_script(
-            'pvt-settings',
+            Constants::SCRIPT_SETTINGS,
             "{$plugin_url}/assets/js/settings.iife.js",
             [],
             $version,
             true
         );
 
-        wp_localize_script('pvt-settings', 'pvtSettingsData', [
+        wp_localize_script(Constants::SCRIPT_SETTINGS, Constants::JS_SETTINGS_DATA, [
             'field'        => Constants::OPTION_ALLOWED_ORIGINS . '[]',
-            'removeLabel'  => __('Remove this origin', 'preview-token'),
-            'warningTitle' => __('Security Warning', 'preview-token'),
-            'warningText'  => __('The bare wildcard (*) allows any origin to access draft content via a valid token. Use specific origin patterns whenever possible.', 'preview-token'),
+            'removeLabel'  => __('Remove this origin', 'draft-preview-token'),
+            'warningTitle' => __('Security Warning', 'draft-preview-token'),
+            'warningText'  => __('The bare wildcard (*) allows any origin to access draft content via a valid token. Use specific origin patterns whenever possible.', 'draft-preview-token'),
         ]);
     }
 
     public function add_settings_page(): void
     {
         add_options_page(
-            __('WP Preview Token', 'preview-token'),
-            __('Preview Token',    'preview-token'),
+            __('Draft Preview Token', 'draft-preview-token'),
+            __('Draft Preview Token', 'draft-preview-token'),
             'manage_options',
-            'preview-token',
+            Constants::SETTINGS_PAGE_SLUG,
             [$this, 'render_page']
         );
     }
 
     public function register_fields(): void
     {
-        register_setting('pvt_settings', Constants::OPTION_FRONTEND_URL, [
+        register_setting(Constants::SETTINGS_GROUP, Constants::OPTION_FRONTEND_URL, [
             'type'              => 'string',
             'sanitize_callback' => 'esc_url_raw',
         ]);
 
-        register_setting('pvt_settings', Constants::OPTION_ALLOWED_ORIGINS, [
+        register_setting(Constants::SETTINGS_GROUP, Constants::OPTION_ALLOWED_ORIGINS, [
             'type'              => 'string',
             // Accepts either a newline-separated string (legacy textarea) or
-            // an array submitted by the dynamic input list (name="pvt_allowed_origins[]").
+            // an array submitted by the dynamic input list (name="Constants::OPTION_ALLOWED_ORIGINS[]").
             'sanitize_callback' => static function ($value): string {
                 $lines = is_array($value)
                     ? $value
                     : explode("\n", (string) $value);
                 $lines = array_filter(
-                    array_map('trim', $lines),
+                    array_map(static fn($l): string => sanitize_text_field(trim((string) $l)), $lines),
                     static fn(string $l): bool => $l !== '' && strncmp($l, '#', 1) !== 0
                 );
-                return implode("\n", $lines);
+                return implode("\n", array_values($lines));
             },
         ]);
 
         $allowed_roles = self::ROLE_SLUGS;
-        register_setting('pvt_settings', Constants::OPTION_MIN_CAPABILITY, [
+        register_setting(Constants::SETTINGS_GROUP, Constants::OPTION_MIN_CAPABILITY, [
             'type'              => 'string',
             'sanitize_callback' => static function (string $value) use ($allowed_roles): string {
                 return in_array($value, $allowed_roles, true) ? $value : 'contributor';
@@ -123,46 +123,46 @@ class Settings
             'default'           => 'contributor',
         ]);
 
-        register_setting('pvt_settings', Constants::OPTION_RATE_LIMIT_REQUESTS, [
+        register_setting(Constants::SETTINGS_GROUP, Constants::OPTION_RATE_LIMIT_REQUESTS, [
             'type'              => 'integer',
             'sanitize_callback' => 'absint',
             'default'           => 30,
         ]);
 
-        register_setting('pvt_settings', Constants::OPTION_RATE_LIMIT_WINDOW, [
+        register_setting(Constants::SETTINGS_GROUP, Constants::OPTION_RATE_LIMIT_WINDOW, [
             'type'              => 'integer',
             'sanitize_callback' => 'absint',
             'default'           => 60,
         ]);
 
-        register_setting('pvt_settings', Constants::OPTION_ALLOW_NO_EXPIRY, [
+        register_setting(Constants::SETTINGS_GROUP, Constants::OPTION_ALLOW_NO_EXPIRY, [
             'type'              => 'boolean',
-            'sanitize_callback' => static fn($v): bool => (bool) $v,
+            'sanitize_callback' => 'rest_sanitize_boolean',
             'default'           => false,
         ]);
 
-        register_setting('pvt_settings', Constants::OPTION_SKIP_HTTPS_CHECK, [
+        register_setting(Constants::SETTINGS_GROUP, Constants::OPTION_SKIP_HTTPS_CHECK, [
             'type'              => 'boolean',
-            'sanitize_callback' => static fn($v): bool => (bool) $v,
+            'sanitize_callback' => 'rest_sanitize_boolean',
             'default'           => false,
         ]);
 
-        register_setting('pvt_settings', Constants::OPTION_ALLOW_EXTERNAL_ISSUANCE, [
+        register_setting(Constants::SETTINGS_GROUP, Constants::OPTION_ALLOW_EXTERNAL_ISSUANCE, [
             'type'              => 'boolean',
-            'sanitize_callback' => static fn($v): bool => (bool) $v,
+            'sanitize_callback' => 'rest_sanitize_boolean',
             'default'           => false,
         ]);
 
-        add_settings_section('pvt_main', '', '__return_null', 'preview-token');
+        add_settings_section(Constants::SETTINGS_SECTION, '', '__return_null', Constants::SETTINGS_PAGE_SLUG);
 
-        add_settings_field('pvt_frontend_url',             __('External Preview URL',          'preview-token'), [$this, 'render_frontend_url'],             'preview-token', 'pvt_main');
-        add_settings_field('pvt_allowed_origins',          __('Allowed Origins (CORS)',         'preview-token'), [$this, 'render_allowed_origins'],          'preview-token', 'pvt_main');
-        add_settings_field('pvt_min_capability',           __('Minimum Capability',             'preview-token'), [$this, 'render_min_capability'],           'preview-token', 'pvt_main');
-        add_settings_field('pvt_rate_limit_requests',      __('Rate Limit',                     'preview-token'), [$this, 'render_rate_limit_requests'],      'preview-token', 'pvt_main');
-        add_settings_field('pvt_rate_limit_window',        __('Rate Limit Window',              'preview-token'), [$this, 'render_rate_limit_window'],        'preview-token', 'pvt_main');
-        add_settings_field('pvt_allow_no_expiry',          __('Allow No-Expiry Tokens',         'preview-token'), [$this, 'render_allow_no_expiry'],          'preview-token', 'pvt_main');
-        add_settings_field('pvt_skip_https_check',         __('Skip HTTPS Check',               'preview-token'), [$this, 'render_skip_https_check'],         'preview-token', 'pvt_main');
-        add_settings_field('pvt_allow_external_issuance',  __('Allow External Token Issuance',  'preview-token'), [$this, 'render_allow_external_issuance'],  'preview-token', 'pvt_main');
+        add_settings_field(Constants::OPTION_FRONTEND_URL,        __('External Preview URL',          'draft-preview-token'), [$this, 'render_frontend_url'],             Constants::SETTINGS_PAGE_SLUG, Constants::SETTINGS_SECTION);
+        add_settings_field(Constants::OPTION_ALLOWED_ORIGINS,     __('Allowed Origins (CORS)',         'draft-preview-token'), [$this, 'render_allowed_origins'],          Constants::SETTINGS_PAGE_SLUG, Constants::SETTINGS_SECTION);
+        add_settings_field(Constants::OPTION_MIN_CAPABILITY,      __('Minimum Capability',             'draft-preview-token'), [$this, 'render_min_capability'],           Constants::SETTINGS_PAGE_SLUG, Constants::SETTINGS_SECTION);
+        add_settings_field(Constants::OPTION_RATE_LIMIT_REQUESTS, __('Rate Limit',                     'draft-preview-token'), [$this, 'render_rate_limit_requests'],      Constants::SETTINGS_PAGE_SLUG, Constants::SETTINGS_SECTION);
+        add_settings_field(Constants::OPTION_RATE_LIMIT_WINDOW,   __('Rate Limit Window',              'draft-preview-token'), [$this, 'render_rate_limit_window'],        Constants::SETTINGS_PAGE_SLUG, Constants::SETTINGS_SECTION);
+        add_settings_field(Constants::OPTION_ALLOW_NO_EXPIRY,     __('Allow No-Expiry Tokens',         'draft-preview-token'), [$this, 'render_allow_no_expiry'],          Constants::SETTINGS_PAGE_SLUG, Constants::SETTINGS_SECTION);
+        add_settings_field(Constants::OPTION_SKIP_HTTPS_CHECK,    __('Skip HTTPS Check',               'draft-preview-token'), [$this, 'render_skip_https_check'],         Constants::SETTINGS_PAGE_SLUG, Constants::SETTINGS_SECTION);
+        add_settings_field(Constants::OPTION_ALLOW_EXTERNAL_ISSUANCE, __('Allow External Token Issuance', 'draft-preview-token'), [$this, 'render_allow_external_issuance'], Constants::SETTINGS_PAGE_SLUG, Constants::SETTINGS_SECTION);
     }
 
     public function render_page(): void
@@ -170,18 +170,18 @@ class Settings
         // Defense-in-depth: verify capability explicitly even though
         // add_options_page already restricts access to manage_options.
         if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'preview-token'));
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'draft-preview-token'));
         }
 
         $current_tab = sanitize_key($_GET['tab'] ?? 'settings'); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $base_url    = admin_url('options-general.php?page=preview-token');
+        $base_url    = admin_url('options-general.php?page=draft-preview-token');
         $tabs        = [
-            'settings' => __('Settings',      'preview-token'),
-            'tokens'   => __('Issued Tokens', 'preview-token'),
+            'settings' => __('Settings',      'draft-preview-token'),
+            'tokens'   => __('Issued Tokens', 'draft-preview-token'),
         ];
         ?>
         <div class="wrap">
-            <h1>WP Preview Token</h1>
+            <h1>Draft Preview Token</h1>
             <nav class="nav-tab-wrapper" style="margin-bottom:20px">
                 <?php foreach ($tabs as $slug => $label): ?>
                 <a href="<?php echo esc_url(add_query_arg('tab', $slug, $base_url)); ?>"
@@ -192,12 +192,12 @@ class Settings
             </nav>
 
             <?php if ($current_tab === 'tokens'): ?>
-                <?php do_action('pvt_settings_render_tokens_tab'); ?>
+                <?php do_action(Constants::HOOK_SETTINGS_RENDER_TOKENS_TAB); ?>
             <?php else: ?>
             <form method="post" action="options.php">
                 <?php
-                settings_fields('pvt_settings');
-                do_settings_sections('preview-token');
+                settings_fields(Constants::SETTINGS_GROUP);
+                do_settings_sections(Constants::SETTINGS_PAGE_SLUG);
                 submit_button();
                 ?>
             </form>
@@ -213,7 +213,7 @@ class Settings
             . '<p class="description">%s</p>',
             esc_attr(Constants::OPTION_FRONTEND_URL),
             esc_attr($this->get_frontend_url()),
-            esc_html__('URL of the external client or frontend used to render preview content. Intended for headless setups (e.g. Astro, Next.js, Nuxt) and decoupled architectures where draft content is rendered outside of WordPress. If left empty, the WordPress site URL is used as a fallback.', 'preview-token')
+            esc_html__('URL of the external client or frontend used to render preview content. Intended for headless setups (e.g. Astro, Next.js, Nuxt) and decoupled architectures where draft content is rendered outside of WordPress. If left empty, the WordPress site URL is used as a fallback.', 'draft-preview-token')
         );
     }
 
@@ -225,9 +225,9 @@ class Settings
         }
         $field = esc_attr(Constants::OPTION_ALLOWED_ORIGINS . '[]');
         ?>
-        <div id="pvt-origins-list" style="display:flex;flex-direction:column;gap:6px;max-width:500px">
+        <div id="<?php echo esc_attr(Constants::ELEMENT_ORIGINS_LIST); ?>" style="display:flex;flex-direction:column;gap:6px;max-width:500px">
             <?php foreach ($origins as $origin): ?>
-            <div class="pvt-origin-row" style="display:flex;gap:6px;align-items:center">
+            <div class="<?php echo esc_attr(Constants::CLASS_ORIGIN_ROW); ?>" style="display:flex;gap:6px;align-items:center">
                 <input type="text"
                        name="<?php echo esc_attr($field); ?>"
                        value="<?php echo esc_attr($origin); ?>"
@@ -235,29 +235,29 @@ class Settings
                        placeholder="https://example.com  or  https://*.example.com"
                        style="flex:1;font-family:-apple-system,&quot;system-ui&quot;,&quot;Segoe UI&quot;,Roboto,Oxygen-Sans,Ubuntu,Cantarell,&quot;Helvetica Neue&quot;,sans-serif" />
                 <button type="button"
-                        class="button pvt-remove-origin"
-                        aria-label="<?php esc_attr_e('Remove this origin', 'preview-token'); ?>">&#x2715;</button>
+                        class="button <?php echo esc_attr(Constants::CLASS_REMOVE_ORIGIN); ?>"
+                        aria-label="<?php esc_attr_e('Remove this origin', 'draft-preview-token'); ?>">&#x2715;</button>
             </div>
             <?php endforeach; ?>
         </div>
-        <button type="button" id="pvt-add-origin" class="button" style="margin-top:6px">
-            <?php esc_html_e('+ Add origin', 'preview-token'); ?>
+        <button type="button" id="<?php echo esc_attr(Constants::ELEMENT_ADD_ORIGIN); ?>" class="button" style="margin-top:6px">
+            <?php esc_html_e('+ Add origin', 'draft-preview-token'); ?>
         </button>
         <?php
         // Server-side warning when * is already saved (shown before JS loads).
         if (in_array('*', $this->get_allowed_origins(), true)):
         ?>
-        <div id="pvt-wildcard-warning" class="notice notice-warning inline" style="margin-top:6px;padding:8px 12px">
-            <strong><?php esc_html_e('Security Warning', 'preview-token'); ?>:</strong>
-            <?php esc_html_e('The bare wildcard (*) allows any origin to access draft content via a valid token. Use specific origin patterns whenever possible.', 'preview-token'); ?>
+        <div id="<?php echo esc_attr(Constants::ELEMENT_WILDCARD_WARNING); ?>" class="notice notice-warning inline" style="margin-top:6px;padding:8px 12px">
+            <strong><?php esc_html_e('Security Warning', 'draft-preview-token'); ?>:</strong>
+            <?php esc_html_e('The bare wildcard (*) allows any origin to access draft content via a valid token. Use specific origin patterns whenever possible.', 'draft-preview-token'); ?>
         </div>
         <?php endif; ?>
         <p class="description" style="margin-top:6px">
-            <?php esc_html_e('Wildcards are supported (e.g. https://*.example.com, *). Leave all fields empty to disable CORS headers.', 'preview-token'); ?>
+            <?php esc_html_e('Wildcards are supported (e.g. https://*.example.com, *). Leave all fields empty to disable CORS headers.', 'draft-preview-token'); ?>
         </p>
         <?php
         // JS (settings.iife.js) is enqueued via enqueue_settings_scripts() and
-        // receives pvtSettingsData via wp_localize_script — no inline script needed.
+        // receives drptSettingsData via wp_localize_script — no inline script needed.
     }
 
     public function render_min_capability(): void
@@ -282,11 +282,11 @@ class Settings
     {
         printf(
             '<input type="number" name="%s" value="%d" min="1" max="1000" class="small-text" /> '
-            . esc_html__('requests per window', 'preview-token')
+            . esc_html__('requests per window', 'draft-preview-token')
             . '<p class="description">%s</p>',
             esc_attr(Constants::OPTION_RATE_LIMIT_REQUESTS),
             absint($this->get_rate_limit_requests()),
-            esc_html__('Maximum number of preview requests allowed from a single IP address within the rate limit window. Requests that exceed this limit receive a 429 response. Default: 30.', 'preview-token')
+            esc_html__('Maximum number of preview requests allowed from a single IP address within the rate limit window. Requests that exceed this limit receive a 429 response. Default: 30.', 'draft-preview-token')
         );
     }
 
@@ -294,11 +294,11 @@ class Settings
     {
         printf(
             '<input type="number" name="%s" value="%d" min="1" max="3600" class="small-text" /> '
-            . esc_html__('seconds', 'preview-token')
+            . esc_html__('seconds', 'draft-preview-token')
             . '<p class="description">%s</p>',
             esc_attr(Constants::OPTION_RATE_LIMIT_WINDOW),
             absint($this->get_rate_limit_window()),
-            esc_html__('Time window in seconds over which the rate limit is measured. The request counter resets after each window expires. Default: 60.', 'preview-token')
+            esc_html__('Time window in seconds over which the rate limit is measured. The request counter resets after each window expires. Default: 60.', 'draft-preview-token')
         );
     }
 
@@ -366,8 +366,8 @@ class Settings
             . '<p class="description">%s</p>',
             esc_attr(Constants::OPTION_ALLOW_NO_EXPIRY),
             checked($this->get_allow_no_expiry(), true, false),
-            esc_html__('Enable', 'preview-token'),
-            esc_html__('Allow preview tokens with no expiry. Use with caution — these tokens persist until manually deleted.', 'preview-token')
+            esc_html__('Enable', 'draft-preview-token'),
+            esc_html__('Allow preview tokens with no expiry. Use with caution — these tokens persist until manually deleted.', 'draft-preview-token')
         );
     }
 
@@ -386,19 +386,25 @@ class Settings
                        name="<?php echo esc_attr(Constants::OPTION_SKIP_HTTPS_CHECK); ?>"
                        value="1"
                        <?php checked($enabled); ?> />
-                <?php esc_html_e('Enable (development only)', 'preview-token'); ?>
+                <?php esc_html_e('Enable (development only)', 'draft-preview-token'); ?>
             </label>
             <p class="description">
-                <?php esc_html_e('By default the preview endpoint requires HTTPS so that tokens cannot be intercepted in transit. Enable this option only when running WordPress on a local development environment where HTTPS is unavailable.', 'preview-token'); ?>
+                <?php esc_html_e('By default the preview endpoint requires HTTPS so that tokens cannot be intercepted in transit. Enable this option only when running WordPress on a local development environment where HTTPS is unavailable.', 'draft-preview-token'); ?>
             </p>
             <?php if ($enabled): ?>
             <div class="notice notice-warning inline" style="margin-top:6px;padding:8px 12px">
-                <strong><?php esc_html_e('Security Warning', 'preview-token'); ?>:</strong>
-                <?php esc_html_e('The HTTPS check is currently disabled. Preview tokens can be sent over unencrypted HTTP. Do not use this setting in a production environment.', 'preview-token'); ?>
+                <strong><?php esc_html_e('Security Warning', 'draft-preview-token'); ?>:</strong>
+                <?php esc_html_e('The HTTPS check is currently disabled. Preview tokens can be sent over unencrypted HTTP. Do not use this setting in a production environment.', 'draft-preview-token'); ?>
             </div>
             <?php endif; ?>
             <p class="description" style="margin-top:6px;font-style:italic">
-                <?php esc_html_e('If the PVT_SKIP_HTTPS_CHECK constant is defined in wp-config.php, it takes precedence over this setting.', 'preview-token'); ?>
+                <?php
+                printf(
+                    /* translators: %s: PHP constant name */
+                    esc_html__('If the %s constant is defined in wp-config.php, it takes precedence over this setting.', 'draft-preview-token'),
+                    '<code>' . esc_html(Constants::DEFINE_SKIP_HTTPS_CHECK) . '</code>'
+                );
+                ?>
             </p>
         </fieldset>
         <?php
@@ -417,8 +423,8 @@ class Settings
             . '<p class="description">%s</p>',
             esc_attr(Constants::OPTION_ALLOW_EXTERNAL_ISSUANCE),
             checked($enabled, true, false),
-            esc_html__('Enable', 'preview-token'),
-            esc_html__('When enabled, authenticated users with the required role can issue tokens via the REST API from outside the WordPress admin — for example from CI/CD pipelines or automated scripts. When disabled (default), token issuance is restricted to the WordPress admin interface.', 'preview-token')
+            esc_html__('Enable', 'draft-preview-token'),
+            esc_html__('When enabled, authenticated users with the required role can issue tokens via the REST API from outside the WordPress admin — for example from CI/CD pipelines or automated scripts. When disabled (default), token issuance is restricted to the WordPress admin interface.', 'draft-preview-token')
         );
     }
 

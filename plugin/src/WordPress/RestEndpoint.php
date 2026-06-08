@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace PVT\WordPress;
+namespace DRPT\WordPress;
 
-use PVT\Support\ResponsePipeline;
-use PVT\Token\TokenValidator;
+use DRPT\Support\ResponsePipeline;
+use DRPT\Token\TokenValidator;
 use WP_Error;
 use WP_HTTP_Response;
 use WP_Post;
@@ -39,6 +39,7 @@ class RestEndpoint
         register_rest_route(Constants::REST_NAMESPACE, Constants::ROUTE_PREVIEW, [
             'methods'             => WP_REST_Server::READABLE,
             'callback'            => [$this, 'handle'],
+            // Intentionally public: authorization is handled by token validation in the callback.
             'permission_callback' => '__return_true',
             'args'                => [
                 'token' => [
@@ -57,27 +58,27 @@ class RestEndpoint
      */
     public function handle(WP_REST_Request $request)
     {
-        // M-3: HTTPS required.
+        // HTTPS required.
         // Override options (precedence: wp-config constant > DB option):
-        //   define('PVT_SKIP_HTTPS_CHECK', true)         — server-level override
-        //   Settings > Skip HTTPS Check (checkbox)       — admin UI toggle
-        $skip_https = (defined('PVT_SKIP_HTTPS_CHECK') && PVT_SKIP_HTTPS_CHECK)
+        //   define(Constants::DEFINE_SKIP_HTTPS_CHECK, true)  — server-level override
+        //   Settings > Skip HTTPS Check (checkbox)            — admin UI toggle
+        $skip_https = (defined(Constants::DEFINE_SKIP_HTTPS_CHECK) && constant(Constants::DEFINE_SKIP_HTTPS_CHECK))
                    || $this->settings->get_skip_https_check();
         if (!is_ssl() && !$skip_https) {
             return new WP_Error(
                 'https_required',
-                __('HTTPS is required.', 'preview-token'),
+                __('HTTPS is required.', 'draft-preview-token'),
                 ['status' => 403]
             );
         }
 
-        // M-2: Rate limiting per client IP
+        // Rate limiting per client IP
         $ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? ''));
         if (!$this->rate_limiter->is_allowed($ip)) {
-            do_action('pvt_rate_limit_exceeded', $ip, 'preview');
+            do_action(Constants::HOOK_RATE_LIMIT_EXCEEDED, $ip, 'preview');
             return new WP_Error(
                 'rate_limit_exceeded',
-                __('Too many requests.', 'preview-token'),
+                __('Too many requests.', 'draft-preview-token'),
                 ['status' => 429]
             );
         }
@@ -86,10 +87,10 @@ class RestEndpoint
         $data  = $this->validator->validate($token);
 
         if ($data === false) {
-            do_action('pvt_invalid_token', $ip);
+            do_action(Constants::HOOK_INVALID_TOKEN, $ip);
             return new WP_Error(
                 'invalid_token',
-                __('Invalid or expired preview token.', 'preview-token'),
+                __('Invalid or expired preview token.', 'draft-preview-token'),
                 ['status' => 401]
             );
         }
@@ -99,30 +100,30 @@ class RestEndpoint
         if (!($post instanceof WP_Post)) {
             return new WP_Error(
                 'post_not_found',
-                __('Post not found.', 'preview-token'),
+                __('Post not found.', 'draft-preview-token'),
                 ['status' => 404]
             );
         }
 
-        // L-3: Restrict to previewable statuses only
+        // Restrict to previewable statuses only
         if (!in_array($post->post_status, Constants::PREVIEWABLE_STATUSES, true)) {
             return new WP_Error(
                 'invalid_post_status',
-                __('Preview is only available for unpublished posts.', 'preview-token'),
+                __('Preview is only available for unpublished posts.', 'draft-preview-token'),
                 ['status' => 403]
             );
         }
 
-        // L-5: Audit log
-        do_action('pvt_token_used', $post->ID, $data['user_id']);
+        // Audit log
+        do_action(Constants::HOOK_TOKEN_USED, $post->ID, $data['user_id']);
 
         $controller = new WP_REST_Posts_Controller($post->post_type);
         $prepared   = $controller->prepare_item_for_response($post, $request);
         $filtered   = $this->pipeline->process($prepared->get_data());
 
-        // I-2: Allow application-layer response shaping
-        // add_filter('pvt_preview_response_data', function(array $data, WP_Post $post, WP_REST_Request $req): array { ... }, 10, 3);
-        $filtered = apply_filters('pvt_preview_response_data', $filtered, $post, $request);
+        // Allow application-layer response shaping
+        // add_filter(Constants::FILTER_PREVIEW_RESPONSE_DATA, function(array $data, WP_Post $post, WP_REST_Request $req): array { ... }, 10, 3);
+        $filtered = apply_filters(Constants::FILTER_PREVIEW_RESPONSE_DATA, $filtered, $post, $request);
 
         return new WP_REST_Response($filtered, 200);
     }
@@ -136,7 +137,7 @@ class RestEndpoint
                     return $served;
                 }
 
-                // M-3: Prevent token leakage via Referer header on external resource loads
+                // Prevent token leakage via Referer header on external resource loads
                 header('Referrer-Policy: no-referrer');
 
                 $patterns = $this->settings->get_allowed_origins();
@@ -162,13 +163,13 @@ class RestEndpoint
                     return $served;
                 }
 
-                // L-1: Always echo back the *actual* request origin, never the pattern.
+                // Always echo back the *actual* request origin, never the pattern.
                 //      Browsers reject wildcard pattern strings as ACAO values.
                 $safe = str_replace(["\r", "\n"], '', $request_origin);
                 header("Access-Control-Allow-Origin: {$safe}");
                 header('Access-Control-Allow-Methods: GET, OPTIONS');
                 header('Access-Control-Allow-Credentials: false');
-                // L-1: Required to prevent CDN/proxy caching a single-origin response for all origins
+                // Required to prevent CDN/proxy caching a single-origin response for all origins
                 header('Vary: Origin');
 
                 return $served;

@@ -2,18 +2,21 @@
 
 declare(strict_types=1);
 
-namespace PVT\WordPress;
+namespace DRPT\WordPress;
 
-use PVT\Support\ResponseFilters;
-use PVT\Support\ResponsePipeline;
-use PVT\Token\TokenIssuer;
-use PVT\Token\TokenValidator;
+use DRPT\Support\ResponseFilters;
+use DRPT\Support\ResponsePipeline;
+use DRPT\Token\TokenIssuer;
+use DRPT\Token\TokenValidator;
 
 class Plugin
 {
     private static ?self $instance = null;
 
-    private Settings $settings;
+    private Settings      $settings;
+    private AdminScripts  $admin_scripts;
+    private AuditLogger   $audit_logger;
+    private TokenAdmin    $token_admin;
 
     private function __construct(Settings $settings)
     {
@@ -42,20 +45,26 @@ class Plugin
         $issue    = new IssueEndpoint($issuer, $this->settings, $rate_limiter);
 
         $this->settings->register();
-        (new AdminScripts($this->settings, plugin_dir_url(PVT_PLUGIN_FILE)))->register();
-        (new AuditLogger())->register();
-        (new TokenAdmin($issuer))->register();
+
+        $this->admin_scripts = new AdminScripts($this->settings, plugin_dir_url(constant(Constants::DEFINE_PLUGIN_FILE)));
+        $this->admin_scripts->register();
+
+        $this->audit_logger = new AuditLogger();
+        $this->audit_logger->register();
+
+        $this->token_admin = new TokenAdmin($issuer);
+        $this->token_admin->register();
 
         add_action('rest_api_init', [$endpoint, 'register']);
         add_action('rest_api_init', [$issue,    'register']);
 
         // Daily cleanup of expired token options
-        add_action('pvt_cleanup_tokens', static function() use ($issuer): void {
+        add_action(Constants::HOOK_CLEANUP_TOKENS, static function() use ($issuer): void {
             $issuer->cleanup_expired();
         });
         add_action('init', static function(): void {
-            if (!wp_next_scheduled('pvt_cleanup_tokens')) {
-                wp_schedule_event(time(), 'daily', 'pvt_cleanup_tokens');
+            if (!wp_next_scheduled(Constants::HOOK_CLEANUP_TOKENS)) {
+                wp_schedule_event(time(), 'daily', Constants::HOOK_CLEANUP_TOKENS);
             }
         });
     }

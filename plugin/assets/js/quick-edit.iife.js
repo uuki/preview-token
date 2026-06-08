@@ -5,12 +5,19 @@
 	*
 	* Values tightly coupled to a single module (e.g. component style objects,
 	* REST namespace used only by PHP) remain in their respective files.
+	*
+	* Element IDs and data attributes marked "sync: Constants.php" must be kept
+	* in sync with the corresponding PHP constant in src/WordPress/Constants.php.
 	*/
 	const PRESET_SECONDS = {
 		"1h": 3600,
 		"24h": 86400,
 		"30d": 30 * 86400
 	};
+	const CLASS_QUICK_EDIT_ROOT = "drpt-quick-edit-root";
+	const ATTR_PANEL = "data-drpt-panel";
+	const ATTR_ACTION = "data-drpt-action";
+	const LOG_PREFIX = "[DRPT]";
 	//#endregion
 	//#region src/assets/js/utils.ts
 	/**
@@ -21,7 +28,7 @@
 		let result = template.replace(/%(\d+)\$s/g, (_, i) => String(args[parseInt(i, 10) - 1] ?? ""));
 		return args.reduce((s, a) => s.replace("%s", String(a)), result);
 	};
-	const i18n = () => pvtPreviewData?.i18n;
+	const i18n = () => drptPreviewData?.i18n;
 	const getPresetOptions = (allowNoExpiry) => {
 		const t = i18n();
 		return [
@@ -100,8 +107,8 @@
 		};
 	};
 	const apiFetch = async (method, body, queryParams) => {
-		if (typeof pvtPreviewData === "undefined") throw new Error("pvtPreviewData is not defined");
-		const { tokenBase, nonce } = pvtPreviewData;
+		if (typeof drptPreviewData === "undefined") throw new Error(`${LOG_PREFIX} drptPreviewData is not defined`);
+		const { tokenBase, nonce } = drptPreviewData;
 		const url = queryParams ? `${tokenBase}?${new URLSearchParams(queryParams).toString()}` : tokenBase;
 		const headers = { "X-WP-Nonce": nonce };
 		let bodyStr;
@@ -138,7 +145,7 @@
 		color: "#ddd",
 		margin: "0 4px"
 	};
-	const t = () => pvtPreviewData?.i18n ?? {
+	const t = () => drptPreviewData?.i18n ?? {
 		preset1h: "1 hour",
 		preset24h: "24 hours",
 		preset30d: "30 days",
@@ -172,8 +179,8 @@
 			...style
 		}
 	}, label);
-	const PvtTokenPanel = ({ postId, Btn, SelectInput, onBeforeOpenPreview }) => {
-		const PRESET_OPTIONS = getPresetOptions(pvtPreviewData?.allowNoExpiry ?? false);
+	const DrptTokenPanel = ({ postId, Btn, SelectInput, onBeforeOpenPreview }) => {
+		const PRESET_OPTIONS = getPresetOptions(drptPreviewData?.allowNoExpiry ?? false);
 		const [token, setToken] = useState(null);
 		const [loaded, setLoaded] = useState(false);
 		const [preset, setPreset] = useState("1h");
@@ -186,7 +193,7 @@
 			setLoaded(false);
 			setToken(null);
 			setMode("view");
-			fetch(`${pvtPreviewData?.tokenBase ?? ""}?post_id=${postId}`, { headers: { "X-WP-Nonce": pvtPreviewData?.nonce ?? "" } }).then((r) => r.ok ? r.json() : null).then((d) => {
+			fetch(`${drptPreviewData?.tokenBase ?? ""}?post_id=${postId}`, { headers: { "X-WP-Nonce": drptPreviewData?.nonce ?? "" } }).then((r) => r.ok ? r.json() : null).then((d) => {
 				setToken(d);
 				setLoaded(true);
 			}).catch(() => setLoaded(true));
@@ -254,8 +261,8 @@
 				boxSizing: "border-box"
 			}
 		}) : null);
-		if (!loaded) return el$2("div", { "data-pvt-panel": "loading" }, el$2("p", { style: S_META }, t().loading));
-		if (isActive && mode === "editing") return el$2("div", { "data-pvt-panel": "editing" }, expirySelector(), error ? el$2("p", { style: S_ERROR }, error) : null, el$2("div", { style: {
+		if (!loaded) return el$2("div", { [ATTR_PANEL]: "loading" }, el$2("p", { style: S_META }, t().loading));
+		if (isActive && mode === "editing") return el$2("div", { [ATTR_PANEL]: "editing" }, expirySelector(), error ? el$2("p", { style: S_ERROR }, error) : null, el$2("div", { style: {
 			display: "flex",
 			gap: "8px",
 			alignItems: "center",
@@ -271,17 +278,19 @@
 		})));
 		if (isActive) {
 			const expiresLabel = expiry?.rel ? fmt(t().expiresRelative, expiry.abs, expiry.rel) : expiry?.abs ?? "";
-			return el$2("div", { "data-pvt-panel": "active" }, el$2("p", { style: S_META }, expiresLabel), el$2("div", { style: {
+			return el$2("div", { [ATTR_PANEL]: "active" }, el$2("p", { style: S_META }, expiresLabel), el$2("div", { style: {
 				display: "flex",
 				gap: "4px",
 				alignItems: "center",
 				marginBottom: "8px"
 			} }, el$2("span", {
-				"data-pvt-action": "preview",
+				[ATTR_ACTION]: "preview",
 				style: { flex: "1" }
 			}, el$2(Btn, {
 				variant: "secondary",
-				onClick: doOpenPreview,
+				href: onBeforeOpenPreview ? void 0 : token?.preview_url ?? void 0,
+				target: "_blank",
+				onClick: onBeforeOpenPreview ? doOpenPreview : void 0,
 				isBusy: busy,
 				style: {
 					width: "100%",
@@ -309,7 +318,7 @@
 				isBusy: busy
 			}, t().yes), el$2("span", { style: S_DIVIDER }, "|"), textLink(t().cancel, () => setMode("view"))) : el$2("p", { style: { margin: 0 } }, textLink(t().changeExpiry, () => setMode("editing")), el$2("span", { style: S_DIVIDER }, "·"), textLink(t().deleteToken, () => setMode("confirm_delete"), { color: "#cc1818" })), error ? el$2("p", { style: S_ERROR }, error) : null);
 		}
-		return el$2("div", { "data-pvt-panel": "empty" }, expirySelector(), error ? el$2("p", { style: S_ERROR }, error) : null, el$2("span", { "data-pvt-action": "generate" }, el$2(Btn, {
+		return el$2("div", { [ATTR_PANEL]: "empty" }, expirySelector(), error ? el$2("p", { style: S_ERROR }, error) : null, el$2("span", { [ATTR_ACTION]: "generate" }, el$2(Btn, {
 			variant: "secondary",
 			onClick: doGenerate,
 			isBusy: busy,
@@ -371,40 +380,40 @@
 	//#region src/assets/js/quick-edit.ts
 	/**
 	* Quick Edit entry.
-	* Mounts PvtTokenPanel inside the #edit-{postId} rows via MutationObserver.
+	* Mounts DrptTokenPanel inside the #edit-{postId} rows via MutationObserver.
 	* WordPress deps: wp-element, inline-edit-post
 	*/
-	if (typeof pvtPreviewData === "undefined") throw new Error("[PVT] pvtPreviewData is not defined");
+	if (typeof drptPreviewData === "undefined") throw new Error(`${LOG_PREFIX} drptPreviewData is not defined`);
 	const { createElement: el } = wp.element;
 	const renderToContainer = (container, postId) => {
-		const panel = el(PvtTokenPanel, {
+		const panel = el(DrptTokenPanel, {
 			postId,
 			Btn: NativeBtn,
 			SelectInput: NativeSelect
 		});
 		if (wp.element.createRoot) {
-			if (!container._pvtRoot) container._pvtRoot = wp.element.createRoot(container);
-			container._pvtRoot.render(panel);
+			if (!container._drptRoot) container._drptRoot = wp.element.createRoot(container);
+			container._drptRoot.render(panel);
 		} else wp.element.render(panel, container);
 	};
 	const getQuickEditCol = (row) => row.querySelector(".inline-edit-col-left .inline-edit-col") ?? row.querySelector(".inline-edit-col");
 	const mountPanel = (row, postId) => {
 		const col = getQuickEditCol(row);
 		if (!col || !postId) return;
-		let container = col.querySelector(".pvt-quick-edit-root");
+		let container = col.querySelector(`.${CLASS_QUICK_EDIT_ROOT}`);
 		if (!container) {
 			container = document.createElement("div");
-			container.className = "pvt-quick-edit-root";
+			container.className = CLASS_QUICK_EDIT_ROOT;
 			container.style.cssText = "border-top:1px solid #ddd;margin-top:8px;padding-top:8px";
 			col.appendChild(container);
 		}
 		renderToContainer(container, postId);
 	};
 	const unmountRow = (row) => {
-		const container = row.querySelector(".pvt-quick-edit-root");
+		const container = row.querySelector(`.${CLASS_QUICK_EDIT_ROOT}`);
 		if (!container) return;
-		container._pvtRoot?.unmount();
-		container._pvtRoot = void 0;
+		container._drptRoot?.unmount();
+		container._drptRoot = void 0;
 		container.remove();
 	};
 	const observeQuickEdit = () => {
@@ -412,12 +421,12 @@
 		if (!list) return;
 		new MutationObserver((mutations) => {
 			for (const mutation of mutations) {
-				for (const node of mutation.addedNodes) {
+				for (const node of Array.from(mutation.addedNodes)) {
 					if (!(node instanceof HTMLElement)) continue;
 					const match = /^edit-(\d+)$/.exec(node.id ?? "");
 					if (match) mountPanel(node, parseInt(match[1], 10));
 				}
-				for (const node of mutation.removedNodes) {
+				for (const node of Array.from(mutation.removedNodes)) {
 					if (!(node instanceof HTMLElement)) continue;
 					if (/^edit-\d+$/.test(node.id ?? "")) unmountRow(node);
 				}

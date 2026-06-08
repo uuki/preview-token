@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace PVT\Tests\Unit;
+namespace DRPT\Tests\Unit;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
-use PVT\WordPress\IssueEndpoint;
-use PVT\WordPress\Settings;
-use PVT\WordPress\RateLimiter;
-use PVT\Token\TokenIssuer;
+use DRPT\WordPress\IssueEndpoint;
+use DRPT\WordPress\Settings;
+use DRPT\WordPress\RateLimiter;
+use DRPT\Token\TokenIssuer;
 
 /**
  * Tests for the "Allow External Token Issuance" guard in IssueEndpoint.

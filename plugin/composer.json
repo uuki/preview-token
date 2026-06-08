@@ -1,5 +1,5 @@
 {
-    "name": "uuki/preview-token",
+    "name": "uuki/draft-preview-token",
     "description": "Issues time-limited preview tokens for Headless WordPress.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
@@ -14,12 +14,12 @@
     },
     "autoload": {
         "psr-4": {
-            "PVT\\": "src/"
+            "DRPT\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "PVT\\Tests\\": "tests/"
+            "DRPT\\Tests\\": "tests/"
         }
     },
     "scripts": {

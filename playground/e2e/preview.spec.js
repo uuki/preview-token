@@ -34,12 +34,12 @@ test.describe('Preview page', () => {
 
 test.describe('REST API', () => {
     test('returns 401 for an invalid token', async ({ request }) => {
-        const res = await request.get(`${WP}/wp-json/preview-token/v1/preview?token=invalid`);
+        const res = await request.get(`${WP}/wp-json/draft-preview-token/v1/preview?token=invalid`);
         expect(res.status()).toBe(401);
     });
 
     test('returns 400 when token param is missing', async ({ request }) => {
-        const res = await request.get(`${WP}/wp-json/preview-token/v1/preview`);
+        const res = await request.get(`${WP}/wp-json/draft-preview-token/v1/preview`);
         expect(res.status()).toBe(400);
     });
 });
@@ -95,31 +95,26 @@ test.describe('Gutenberg sidebar preview', () => {
 
         // Check if generate button exists and click it
         const hasGenerate = await page.evaluate(() =>
-            !!document.querySelector('[data-pvt-action="generate"]')
+            !!document.querySelector('[data-drpt-action="generate"]')
         ).catch(() => false);
 
         if (hasGenerate) {
             await page.evaluate(() => {
-                const span = document.querySelector('[data-pvt-action="generate"]');
+                const span = document.querySelector('[data-drpt-action="generate"]');
                 if (span) (span.querySelector('button') ?? span).click();
             }).catch(() => null);
             // Wait for token generation (fixed wait — no polling)
             await page.waitForTimeout(4000);
         }
 
-        // Get preview URL
-        const previewUrl = await page.evaluate(() => {
-            const span = document.querySelector('[data-pvt-action="preview"]');
-            const link = span ? span.querySelector('a') : null;
-            return link ? link.href : null;
-        }).catch(() => null);
-
-        expect(previewUrl).toMatch(/[?&]token=[0-9a-f]{64}/);
-
-        // Open preview in a new tab
+        // Click preview button — Gutenberg calls window.open() internally after auto-save
         const popupPromise = context.waitForEvent('page');
-        await page.evaluate((url) => window.open(url, '_blank'), previewUrl);
+        await page.evaluate(() => {
+            const btn = document.querySelector('[data-drpt-action="preview"] button');
+            if (btn) btn.click();
+        }).catch(() => null);
         const previewPage = await popupPromise;
+        const previewUrl = previewPage.url();
 
         await previewPage.waitForURL(/[?&]token=[0-9a-f]{64}/, { timeout: 30_000 });
         expect(previewPage.url()).toMatch(/[?&]token=[0-9a-f]{64}/);
@@ -157,32 +152,32 @@ test.describe('Quick Edit token panel', () => {
 
         // Wait for PVT panel to finish loading
         await page.waitForFunction(() => {
-            const panel = document.querySelector('.pvt-quick-edit-root [data-pvt-panel]');
-            return panel && panel.getAttribute('data-pvt-panel') !== 'loading';
+            const panel = document.querySelector('.drpt-quick-edit-root [data-drpt-panel]');
+            return panel && panel.getAttribute('data-drpt-panel') !== 'loading';
         }, { timeout: 20_000 });
 
         await page.waitForFunction(() =>
-            !!document.querySelector('.pvt-quick-edit-root [data-pvt-action="generate"], .pvt-quick-edit-root [data-pvt-action="preview"]'),
+            !!document.querySelector('.drpt-quick-edit-root [data-drpt-action="generate"], .drpt-quick-edit-root [data-drpt-action="preview"]'),
             { timeout: 5_000 }
         );
 
         const hasGenerate = await page.evaluate(() =>
-            !!document.querySelector('.pvt-quick-edit-root [data-pvt-action="generate"]')
+            !!document.querySelector('.drpt-quick-edit-root [data-drpt-action="generate"]')
         );
 
         if (hasGenerate) {
             await page.evaluate(() => {
-                const span = document.querySelector('.pvt-quick-edit-root [data-pvt-action="generate"]');
+                const span = document.querySelector('.drpt-quick-edit-root [data-drpt-action="generate"]');
                 (span?.querySelector('button') ?? span)?.click();
             });
             await page.waitForFunction(() =>
-                !!document.querySelector('.pvt-quick-edit-root [data-pvt-action="preview"]'),
+                !!document.querySelector('.drpt-quick-edit-root [data-drpt-action="preview"]'),
                 { timeout: 10_000 }
             );
         }
 
         const href = await page.evaluate(() => {
-            const span = document.querySelector('.pvt-quick-edit-root [data-pvt-action="preview"]');
+            const span = document.querySelector('.drpt-quick-edit-root [data-drpt-action="preview"]');
             return (span?.querySelector('a') ?? span)?.href ?? '';
         });
         expect(href).toMatch(/[?&]token=[0-9a-f]{64}/);
@@ -230,32 +225,32 @@ test.describe('Classic Editor token panel', () => {
 
         // Wait for PVT meta box panel to finish loading
         await page.waitForFunction(() => {
-            const panel = document.querySelector('#pvt-classic-meta-box-root [data-pvt-panel]');
-            return panel && panel.getAttribute('data-pvt-panel') !== 'loading';
+            const panel = document.querySelector('#drpt-classic-meta-box-root [data-drpt-panel]');
+            return panel && panel.getAttribute('data-drpt-panel') !== 'loading';
         }, { timeout: 20_000 });
 
         await page.waitForFunction(() =>
-            !!document.querySelector('#pvt-classic-meta-box-root [data-pvt-action="generate"], #pvt-classic-meta-box-root [data-pvt-action="preview"]'),
+            !!document.querySelector('#drpt-classic-meta-box-root [data-drpt-action="generate"], #drpt-classic-meta-box-root [data-drpt-action="preview"]'),
             { timeout: 5_000 }
         );
 
         const hasGenerate = await page.evaluate(() =>
-            !!document.querySelector('#pvt-classic-meta-box-root [data-pvt-action="generate"]')
+            !!document.querySelector('#drpt-classic-meta-box-root [data-drpt-action="generate"]')
         );
 
         if (hasGenerate) {
             await page.evaluate(() => {
-                const span = document.querySelector('#pvt-classic-meta-box-root [data-pvt-action="generate"]');
+                const span = document.querySelector('#drpt-classic-meta-box-root [data-drpt-action="generate"]');
                 (span?.querySelector('button') ?? span)?.click();
             });
             await page.waitForFunction(() =>
-                !!document.querySelector('#pvt-classic-meta-box-root [data-pvt-action="preview"]'),
+                !!document.querySelector('#drpt-classic-meta-box-root [data-drpt-action="preview"]'),
                 { timeout: 10_000 }
             );
         }
 
         const href = await page.evaluate(() => {
-            const span = document.querySelector('#pvt-classic-meta-box-root [data-pvt-action="preview"]');
+            const span = document.querySelector('#drpt-classic-meta-box-root [data-drpt-action="preview"]');
             return (span?.querySelector('a') ?? span)?.href ?? '';
         });
         expect(href).toMatch(/[?&]token=[0-9a-f]{64}/);
