@@ -1,5 +1,5 @@
 import type { ExpiryInfo, SelectOption } from './types'
-import { PRESET_SECONDS } from './constants'
+import { PRESET_SECONDS, LOG_PREFIX } from './constants'
 
 export { PRESET_SECONDS }
 
@@ -81,7 +81,7 @@ export const apiFetch = async <T = unknown>(
   queryParams?: Record<string, string>,
 ): Promise<T | null> => {
   if (typeof pvtPreviewData === 'undefined') {
-    throw new Error('pvtPreviewData is not defined')
+    throw new Error(`${LOG_PREFIX} pvtPreviewData is not defined`)
   }
 
   const { tokenBase, nonce } = pvtPreviewData

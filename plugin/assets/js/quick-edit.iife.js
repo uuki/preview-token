@@ -107,7 +107,7 @@
 		};
 	};
 	const apiFetch = async (method, body, queryParams) => {
-		if (typeof pvtPreviewData === "undefined") throw new Error("pvtPreviewData is not defined");
+		if (typeof pvtPreviewData === "undefined") throw new Error(`${LOG_PREFIX} pvtPreviewData is not defined`);
 		const { tokenBase, nonce } = pvtPreviewData;
 		const url = queryParams ? `${tokenBase}?${new URLSearchParams(queryParams).toString()}` : tokenBase;
 		const headers = { "X-WP-Nonce": nonce };
