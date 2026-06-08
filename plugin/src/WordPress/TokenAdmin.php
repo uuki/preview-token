@@ -9,7 +9,7 @@ use PVT\Token\TokenIssuer;
 /**
  * Renders the "Issued Tokens" admin tab and handles token deletion actions.
  * Registered via Plugin::init(); hooks into Settings::render_page() via
- * the pvt_settings_render_tokens_tab action.
+ * the Constants::HOOK_SETTINGS_RENDER_TOKENS_TAB action.
  */
 class TokenAdmin
 {
