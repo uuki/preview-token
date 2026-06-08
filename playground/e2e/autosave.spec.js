@@ -116,7 +116,7 @@ test.describe('Gutenberg auto-save before external preview', () => {
         expect(dirtyAfter, 'Post must not be dirty after auto-save').toBe(false);
 
         // ── Fetch preview endpoint and verify edited content is present ────────
-        const res  = await page.request.get(`${WP}/wp-json/preview-token/v1/preview?token=${token}`);
+        const res  = await page.request.get(`${WP}/wp-json/draft-preview-token/v1/preview?token=${token}`);
         expect(res.status()).toBe(200);
         const body = await res.json();
         expect(

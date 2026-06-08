@@ -174,7 +174,7 @@ class Settings
         }
 
         $current_tab = sanitize_key($_GET['tab'] ?? 'settings'); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $base_url    = admin_url('options-general.php?page=preview-token');
+        $base_url    = admin_url('options-general.php?page=draft-preview-token');
         $tabs        = [
             'settings' => __('Settings',      'draft-preview-token'),
             'tokens'   => __('Issued Tokens', 'draft-preview-token'),

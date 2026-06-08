@@ -20,7 +20,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 1. 権限のある WordPress ユーザーが Gutenberg サイドバー、クイック編集パネル、またはクラシックエディターのメタボックスからトークンを生成します。
 2. トークンが外部フロントエンドを指す URL に埋め込まれます。
-3. フロントエンドが `/wp-json/preview-token/v1/preview?token=…` を呼び出してドラフトコンテンツを取得します。
+3. フロントエンドが `/wp-json/draft-preview-token/v1/preview?token=…` を呼び出してドラフトコンテンツを取得します。
 4. トークンは自動的に期限切れとなり、手動でのクリーンアップは不要です。
 
 = 主な機能 =
@@ -171,7 +171,7 @@ TypeScript ソースから JavaScript バンドルを再ビルドするには：
 `token` クエリパラメータをプレビューエンドポイントに渡すだけで、認証ヘッダーは不要です：
 
 ```
-GET /wp-json/preview-token/v1/preview?token=<token>
+GET /wp-json/draft-preview-token/v1/preview?token=<token>
 ```
 
 トークンは発行時に特定の投稿と紐づいており（SHA-256 ハッシュが `wp_options` に保存）、サーバーはトークンのみから返すべき投稿を決定します。クライアントが別の投稿にリダイレクトさせることはできません。
@@ -183,7 +183,7 @@ const params   = new URLSearchParams(location.search)
 const token    = params.get('token')
 const postType = params.get('pt')   // 'post'・'page'・カスタム投稿タイプのスラッグ
 
-const res  = await fetch(`https://wp.example.com/wp-json/preview-token/v1/preview?token=${token}`)
+const res  = await fetch(`https://wp.example.com/wp-json/draft-preview-token/v1/preview?token=${token}`)
 const post = await res.json()
 ```
 

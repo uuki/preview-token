@@ -58,7 +58,7 @@ class RestEndpoint
      */
     public function handle(WP_REST_Request $request)
     {
-        // M-3: HTTPS required.
+        // HTTPS required.
         // Override options (precedence: wp-config constant > DB option):
         //   define(Constants::DEFINE_SKIP_HTTPS_CHECK, true)  — server-level override
         //   Settings > Skip HTTPS Check (checkbox)            — admin UI toggle
@@ -72,7 +72,7 @@ class RestEndpoint
             );
         }
 
-        // M-2: Rate limiting per client IP
+        // Rate limiting per client IP
         $ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? ''));
         if (!$this->rate_limiter->is_allowed($ip)) {
             do_action(Constants::HOOK_RATE_LIMIT_EXCEEDED, $ip, 'preview');
@@ -105,7 +105,7 @@ class RestEndpoint
             );
         }
 
-        // L-3: Restrict to previewable statuses only
+        // Restrict to previewable statuses only
         if (!in_array($post->post_status, Constants::PREVIEWABLE_STATUSES, true)) {
             return new WP_Error(
                 'invalid_post_status',
@@ -114,14 +114,14 @@ class RestEndpoint
             );
         }
 
-        // L-5: Audit log
+        // Audit log
         do_action(Constants::HOOK_TOKEN_USED, $post->ID, $data['user_id']);
 
         $controller = new WP_REST_Posts_Controller($post->post_type);
         $prepared   = $controller->prepare_item_for_response($post, $request);
         $filtered   = $this->pipeline->process($prepared->get_data());
 
-        // I-2: Allow application-layer response shaping
+        // Allow application-layer response shaping
         // add_filter(Constants::FILTER_PREVIEW_RESPONSE_DATA, function(array $data, WP_Post $post, WP_REST_Request $req): array { ... }, 10, 3);
         $filtered = apply_filters(Constants::FILTER_PREVIEW_RESPONSE_DATA, $filtered, $post, $request);
 
@@ -137,7 +137,7 @@ class RestEndpoint
                     return $served;
                 }
 
-                // M-3: Prevent token leakage via Referer header on external resource loads
+                // Prevent token leakage via Referer header on external resource loads
                 header('Referrer-Policy: no-referrer');
 
                 $patterns = $this->settings->get_allowed_origins();
@@ -163,13 +163,13 @@ class RestEndpoint
                     return $served;
                 }
 
-                // L-1: Always echo back the *actual* request origin, never the pattern.
+                // Always echo back the *actual* request origin, never the pattern.
                 //      Browsers reject wildcard pattern strings as ACAO values.
                 $safe = str_replace(["\r", "\n"], '', $request_origin);
                 header("Access-Control-Allow-Origin: {$safe}");
                 header('Access-Control-Allow-Methods: GET, OPTIONS');
                 header('Access-Control-Allow-Credentials: false');
-                // L-1: Required to prevent CDN/proxy caching a single-origin response for all origins
+                // Required to prevent CDN/proxy caching a single-origin response for all origins
                 header('Vary: Origin');
 
                 return $served;

@@ -27,7 +27,7 @@ Editor generates token in Gutenberg sidebar / Quick Edit / Classic Editor
 User opens the preview URL in browser
 
 Frontend
-  └─ GET /wp-json/preview-token/v1/preview?token=<token>
+  └─ GET /wp-json/draft-preview-token/v1/preview?token=<token>
 
 WordPress
   └─ hashes the token, looks up wp_options key
@@ -55,7 +55,7 @@ Reuse within the validity window is intentional — editors commonly reload the 
 
 **Preview (public)**
 ```
-GET /wp-json/preview-token/v1/preview?token=<token>
+GET /wp-json/draft-preview-token/v1/preview?token=<token>
 ```
 
 | Status | Condition                |
@@ -69,10 +69,10 @@ GET /wp-json/preview-token/v1/preview?token=<token>
 
 **Token management (authenticated)**
 ```
-POST   /wp-json/preview-token/v1/token   # issue
-GET    /wp-json/preview-token/v1/token   # get current token for a post
-PATCH  /wp-json/preview-token/v1/token   # update expiry only
-DELETE /wp-json/preview-token/v1/token   # revoke
+POST   /wp-json/draft-preview-token/v1/token   # issue
+GET    /wp-json/draft-preview-token/v1/token   # get current token for a post
+PATCH  /wp-json/draft-preview-token/v1/token   # update expiry only
+DELETE /wp-json/draft-preview-token/v1/token   # revoke
 ```
 
 The preview response body matches the standard WordPress REST API post format (`/wp/v2/posts/{id}`). The following fields are removed before the response is returned:
@@ -157,7 +157,7 @@ const token = Astro.url.searchParams.get('token');
 if (!token) return Astro.redirect('/404');
 
 const res = await fetch(
-  `https://wp.example.com/wp-json/preview-token/v1/preview?token=${token}`
+  `https://wp.example.com/wp-json/draft-preview-token/v1/preview?token=${token}`
 );
 
 if (!res.ok) return Astro.redirect('/404');

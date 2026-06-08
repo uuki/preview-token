@@ -14,7 +14,7 @@ test.describe('CORS origins UI', () => {
         // Navigate via dashboard first to ensure WP admin is fully initialized
         await page.goto(`${WP}/wp-admin/`);
         await page.waitForLoadState('domcontentloaded');
-        await page.goto(`${WP}/wp-admin/admin.php?page=preview-token`);
+        await page.goto(`${WP}/wp-admin/admin.php?page=draft-preview-token`);
         await page.waitForLoadState('domcontentloaded');
     });
 

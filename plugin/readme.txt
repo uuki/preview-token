@@ -20,7 +20,7 @@ The frontend (Astro, Next.js, Nuxt, etc.) receives a preview URL and can fetch t
 
 1. An authorized WordPress user generates a token from the Gutenberg sidebar, Quick Edit panel, or Classic Editor meta box.
 2. The token is embedded in a preview URL pointing to your external frontend.
-3. The frontend calls `/wp-json/preview-token/v1/preview?token=…` to retrieve the draft content.
+3. The frontend calls `/wp-json/draft-preview-token/v1/preview?token=…` to retrieve the draft content.
 4. The token expires automatically; no manual cleanup needed.
 
 = Key Features =
@@ -171,7 +171,7 @@ Yes. When the Classic Editor plugin is active, the token panel appears as a meta
 Pass the `token` query parameter directly to the preview endpoint — no authentication headers required:
 
 ```
-GET /wp-json/preview-token/v1/preview?token=<token>
+GET /wp-json/draft-preview-token/v1/preview?token=<token>
 ```
 
 The token is bound to a specific post at issuance time (stored as a SHA-256 hash in `wp_options`). The server resolves which post to return from the token alone; the client cannot redirect it to a different post.
@@ -183,7 +183,7 @@ const params  = new URLSearchParams(location.search)
 const token   = params.get('token')
 const postType = params.get('pt')   // 'post', 'page', or a custom post type slug
 
-const res  = await fetch(`https://wp.example.com/wp-json/preview-token/v1/preview?token=${token}`)
+const res  = await fetch(`https://wp.example.com/wp-json/draft-preview-token/v1/preview?token=${token}`)
 const post = await res.json()
 ```
 

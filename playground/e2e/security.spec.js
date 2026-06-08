@@ -11,7 +11,7 @@ import { test, expect } from '@playwright/test';
 import { Buffer } from 'node:buffer';
 
 const WP     = 'http://127.0.0.1:9400';
-const API    = `${WP}/wp-json/preview-token/v1`;
+const API    = `${WP}/wp-json/draft-preview-token/v1`;
 const WP_API = `${WP}/wp-json/wp/v2`;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -213,7 +213,7 @@ test.describe('A01 — Broken Access Control', () => {
             await page.fill('#user_pass', 'password');
             await page.click('#wp-submit');
             await page.waitForURL(`${WP}/wp-admin/**`);
-            await page.goto(`${WP}/wp-admin/options-general.php?page=preview-token`);
+            await page.goto(`${WP}/wp-admin/options-general.php?page=draft-preview-token`);
             await page.waitForLoadState('domcontentloaded');
             const body = await page.locator('body').innerText();
             // Must not show the settings form fields to a non-admin
@@ -569,7 +569,7 @@ test.describe('External Issuance Guard', () => {
         }
 
         // Enable external issuance via the settings page
-        await adminPage.goto(`${WP}/wp-admin/options-general.php?page=preview-token`);
+        await adminPage.goto(`${WP}/wp-admin/options-general.php?page=draft-preview-token`);
         await adminPage.waitForLoadState('domcontentloaded');
         const checkbox = adminPage.locator('input[name="drpt_allow_external_issuance"]');
         if (!(await checkbox.isChecked())) {
@@ -594,7 +594,7 @@ test.describe('External Issuance Guard', () => {
             expect([200, 201]).toContain(res.status());
         } finally {
             // Always restore the default (external issuance OFF)
-            await adminPage.goto(`${WP}/wp-admin/options-general.php?page=preview-token`);
+            await adminPage.goto(`${WP}/wp-admin/options-general.php?page=draft-preview-token`);
             await adminPage.waitForLoadState('domcontentloaded');
             const cb = adminPage.locator('input[name="drpt_allow_external_issuance"]');
             if (await cb.isChecked()) {

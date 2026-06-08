@@ -27,7 +27,7 @@
 ユーザーがブラウザでプレビュー URL を開く
 
 フロントエンド
-  └─ GET /wp-json/preview-token/v1/preview?token=<token>
+  └─ GET /wp-json/draft-preview-token/v1/preview?token=<token>
 
 WordPress
   └─ トークンをハッシュ化して wp_options のキーを引く
@@ -55,7 +55,7 @@ WordPress
 
 **プレビュー（公開）**
 ```
-GET /wp-json/preview-token/v1/preview?token=<token>
+GET /wp-json/draft-preview-token/v1/preview?token=<token>
 ```
 
 | ステータス | 条件                         |
@@ -69,10 +69,10 @@ GET /wp-json/preview-token/v1/preview?token=<token>
 
 **トークン管理（認証済み）**
 ```
-POST   /wp-json/preview-token/v1/token   # 発行
-GET    /wp-json/preview-token/v1/token   # 現在のトークン取得
-PATCH  /wp-json/preview-token/v1/token   # 有効期限のみ更新
-DELETE /wp-json/preview-token/v1/token   # 失効
+POST   /wp-json/draft-preview-token/v1/token   # 発行
+GET    /wp-json/draft-preview-token/v1/token   # 現在のトークン取得
+PATCH  /wp-json/draft-preview-token/v1/token   # 有効期限のみ更新
+DELETE /wp-json/draft-preview-token/v1/token   # 失効
 ```
 
 レスポンスボディは WordPress 標準の REST API フォーマット（`/wp/v2/posts/{id}`）に準拠する。以下のフィールドはレスポンス前に除去される。
@@ -157,7 +157,7 @@ const token = Astro.url.searchParams.get('token');
 if (!token) return Astro.redirect('/404');
 
 const res = await fetch(
-  `https://wp.example.com/wp-json/preview-token/v1/preview?token=${token}`
+  `https://wp.example.com/wp-json/draft-preview-token/v1/preview?token=${token}`
 );
 
 if (!res.ok) return Astro.redirect('/404');
