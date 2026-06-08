@@ -134,7 +134,7 @@ class TokenIssuer
     }
 
     /**
-     * Remove expired pvt_tk_* options. Called by WP Cron daily.
+     * Remove expired OPTIONS_PREFIX* options. Called by WP Cron daily.
      */
     public function cleanup_expired(): void
     {
