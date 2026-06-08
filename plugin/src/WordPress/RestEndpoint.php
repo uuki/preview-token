@@ -39,6 +39,7 @@ class RestEndpoint
         register_rest_route(Constants::REST_NAMESPACE, Constants::ROUTE_PREVIEW, [
             'methods'             => WP_REST_Server::READABLE,
             'callback'            => [$this, 'handle'],
+            // Intentionally public: authorization is handled by token validation in the callback.
             'permission_callback' => '__return_true',
             'args'                => [
                 'token' => [

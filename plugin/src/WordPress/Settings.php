@@ -107,10 +107,10 @@ class Settings
                     ? $value
                     : explode("\n", (string) $value);
                 $lines = array_filter(
-                    array_map('trim', $lines),
+                    array_map(static fn($l): string => sanitize_text_field(trim((string) $l)), $lines),
                     static fn(string $l): bool => $l !== '' && strncmp($l, '#', 1) !== 0
                 );
-                return implode("\n", $lines);
+                return implode("\n", array_values($lines));
             },
         ]);
 
@@ -137,19 +137,19 @@ class Settings
 
         register_setting('pvt_settings', Constants::OPTION_ALLOW_NO_EXPIRY, [
             'type'              => 'boolean',
-            'sanitize_callback' => static fn($v): bool => (bool) $v,
+            'sanitize_callback' => 'rest_sanitize_boolean',
             'default'           => false,
         ]);
 
         register_setting('pvt_settings', Constants::OPTION_SKIP_HTTPS_CHECK, [
             'type'              => 'boolean',
-            'sanitize_callback' => static fn($v): bool => (bool) $v,
+            'sanitize_callback' => 'rest_sanitize_boolean',
             'default'           => false,
         ]);
 
         register_setting('pvt_settings', Constants::OPTION_ALLOW_EXTERNAL_ISSUANCE, [
             'type'              => 'boolean',
-            'sanitize_callback' => static fn($v): bool => (bool) $v,
+            'sanitize_callback' => 'rest_sanitize_boolean',
             'default'           => false,
         ]);
 

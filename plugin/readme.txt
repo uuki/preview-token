@@ -1,5 +1,5 @@
 === Preview Token ===
-Contributors: uuki
+Contributors: uukidev
 Tags: preview, headless, rest-api, token, draft
 Requires at least: 5.9
 Tested up to: 7.0
@@ -110,17 +110,17 @@ This plugin is designed for **headless WordPress** setups where a decoupled fron
 
 The files in `assets/js/` are compiled and minified bundles. Per WordPress.org guidelines, the human-readable TypeScript source files are available at:
 
-https://github.com/uuki/preview-token/tree/main/src/js
+https://github.com/uuki/preview-token/tree/main/plugin/src/assets/js
 
 = Build from Source =
 
 To rebuild the JavaScript bundles from the TypeScript sources:
 
 1. Clone the repository: `git clone https://github.com/uuki/preview-token.git`
-2. Install Node.js dependencies: `pnpm install`
+2. Install Node.js dependencies: `cd plugin && pnpm install`
 3. Compile: `pnpm run build`
 
-The build configuration is defined in `tsdown.config.ts`. Each bundle in `assets/js/` corresponds to one entry point in `src/js/`.
+The build configuration is defined in `plugin/tsdown.config.ts`. Each bundle in `assets/js/` corresponds to one entry point in `plugin/src/assets/js/`.
 
 = Minimum Requirements =
 
